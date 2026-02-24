@@ -11,16 +11,21 @@ venv/
 .env.*
 
 # Raw and external data (may be large or sensitive)
-data/raw/
-data/external/
+data/raw/*
+data/external/*
+data/processed/*
+!data/raw/.gitkeep
+!data/external/.gitkeep
+!data/processed/.gitkeep
 
 # Python compiled files
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
+.env
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
+*/.ipynb_checkpoints/
 
 # Trained model artifacts
 models/*.pkl
@@ -31,3 +36,6 @@ models/*.h5
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# VSCode
+.vscode/

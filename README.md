@@ -23,17 +23,20 @@ for social media content.
 
     CaciqueAnalytics/
     ├── data/
-    │   ├── raw/            # Data as received from source APIs
-    │   ├── processed/      # Cleaned and transformed datasets
-    │   └── external/       # Manually downloaded external files
-    ├── notebooks/          # Exploratory analysis and prototyping
+    │   ├── raw/                 # Data as received from source APIs
+    │   ├── processed/           # Cleaned and transformed datasets
+    │   └── external/            # Manually downloaded external files
+    ├── notebooks/
+    │   ├── archive/             # Initial source exploration (API-Football, FBref, Sofascore)
+    │   └── 01_data_collection.ipynb
     ├── src/
-    │   ├── data/           # Data ingestion and preprocessing scripts
-    │   ├── visualization/  # Reusable chart generation functions
-    │   └── models/         # Machine learning model scripts
-    ├── models/             # Serialized trained models
-    ├── outputs/            # Export-ready charts and infographics
-    └── docs/               # Project documentation and references
+    │   ├── data/                # Data ingestion and preprocessing scripts
+    │   ├── visualization/       # Reusable chart generation functions
+    │   └── models/              # Machine learning model scripts
+    ├── models/                  # Serialized trained models
+    ├── outputs/                 # Export-ready charts and infographics
+    └── docs/                    # Project documentation and references
+
 
 ## Setup
 
@@ -53,11 +56,23 @@ for social media content.
 
 ## Data Sources
 
-| Source       | Coverage                        | Access     |
-|--------------|---------------------------------|------------|
-| API-Football | Fixtures, squads, player stats  | Freemium   |
-| SofaScore    | Match ratings, detailed metrics | Scraping   |
-| FootyStats   | xG, corners, cards              | Freemium   |
+| Source      | Coverage                          | Access   |
+|-------------|-----------------------------------|----------|
+| SofaScore   | Match ratings, player stats, live | Scraping |
+| API-Football| Historical fixtures, team data    | Freemium |
+
+## Setup — soccerdata Configuration
+
+This project uses `soccerdata` to scrape FBref data for the Chilean
+Primera Division. Since this league is not included by default, a
+custom configuration file is required.
+
+Copy the file `docs/soccerdata_league_dict.json` to:
+
+    Windows : C:\Users\<your-username>\soccerdata\config\league_dict.json
+    Mac/Linux: ~/soccerdata/config/league_dict.json
+
+Then restart your Python session before running any notebook.
 
 ## Author
 
