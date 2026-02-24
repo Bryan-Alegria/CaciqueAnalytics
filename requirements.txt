@@ -1,0 +1,26 @@
+# =============================================================
+# CaciqueAnalytics — dependencies
+# =============================================================
+
+# HTTP requests and environment management
+requests
+python-dotenv
+
+# Data processing and analysis
+pandas
+numpy
+
+# Machine learning
+scikit-learn
+
+# Football data collection (API wrappers and scrapers)
+soccerdata
+
+# Visualization
+matplotlib
+seaborn
+mplsoccer
+
+# Notebook support
+jupyter
+ipykernel
