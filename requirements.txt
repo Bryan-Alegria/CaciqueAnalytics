@@ -2,25 +2,38 @@
 # CaciqueAnalytics — dependencies
 # =============================================================
 
-# HTTP requests and environment management
-requests
-python-dotenv
+# Environment management
+python-dotenv==1.2.1
 
-# Data processing and analysis
-pandas
-numpy
+# Data processing
+pandas==3.0.1
+numpy==2.4.2
 
 # Machine learning
-scikit-learn
+scikit-learn==1.8.0
+scipy==1.17.1
 
-# Football data collection (API wrappers and scrapers)
-soccerdata
+# Football data collection
+soccerdata==1.8.8
+requests==2.32.5
+beautifulsoup4==4.14.3
+lxml==6.0.2
+
+# Browser automation (SofaScore scraping)
+selenium==4.41.0
+seleniumbase==4.38.3
+undetected-chromedriver==3.5.5
+webdriver-manager==4.0.2
 
 # Visualization
-matplotlib
-seaborn
-mplsoccer
+matplotlib==3.10.8
+seaborn==0.13.2
+mplsoccer==1.6.1
+highlight-text==0.2
+pillow==12.1.1
 
 # Notebook support
-jupyter
-ipykernel
+jupyter==1.1.1
+jupyterlab==4.5.5
+ipykernel==7.2.0
+ipywidgets==8.1.8

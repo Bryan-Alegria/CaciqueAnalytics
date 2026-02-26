@@ -18,10 +18,14 @@ data/processed/*
 !data/external/.gitkeep
 !data/processed/.gitkeep
 
+# Outputs (generated charts — not versioned)
+outputs/*
+!outputs/.gitkeep
+
 # Python compiled files
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.pyo
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
@@ -32,6 +36,11 @@ models/*.pkl
 models/*.joblib
 models/*.h5
 
+# Selenium / browser automation
+geckodriver.log
+chromedriver.log
+*.log
+
 # OS-generated files
 .DS_Store
 Thumbs.db
@@ -39,3 +48,6 @@ desktop.ini
 
 # VSCode
 .vscode/
+
+# pytest cache
+.pytest_cache/

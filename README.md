@@ -1,42 +1,59 @@
 # CaciqueAnalytics
 
-Statistical analysis and machine learning applied to Chilean
-football, starting with Colo-Colo and the Primera División.
+Statistical analysis and visualization applied to Chilean football,
+starting with Colo-Colo and the Primera Division.
+
+---
 
 ## Overview
 
-This project collects, processes, and analyzes player-level
-statistics from Chilean football competitions. The goal is to
-build ranking systems by position, identify player profiles
-through clustering, and produce publication-ready visualizations
-for social media content.
+This project collects, processes, and analyzes player-level statistics
+from Chilean football competitions. The goal is to build ranking systems
+by position, identify player profiles through clustering, and produce
+publication-ready visualizations for social media content.
+
+---
+
+## Logo
+
+![CaciqueAnalytics](assets/logo.png)
+
+---
 
 ## Tech Stack
 
-- **Data collection**: API-Football, SofaScore (via soccerdata)
-- **Data processing**: Pandas, NumPy
-- **Machine learning**: Scikit-learn
-- **Visualization**: Mplsoccer, Matplotlib, Seaborn
-- **Environment**: Python 3.11+, Jupyter
+| Area                | Libraries                                      |
+|---------------------|------------------------------------------------|
+| Data collection     | soccerdata, requests, beautifulsoup4, selenium |
+| Data processing     | pandas, numpy                                  |
+| Machine learning    | scikit-learn, scipy                            |
+| Visualization       | mplsoccer, matplotlib, seaborn, highlight-text |
+| Notebook support    | jupyter, jupyterlab, ipykernel                 |
+| Environment         | python-dotenv                                  |
+
+---
 
 ## Project Structure
 
     CaciqueAnalytics/
+    ├── assets/                  # Logos, player photos and brand resources
     ├── data/
     │   ├── raw/                 # Data as received from source APIs
     │   ├── processed/           # Cleaned and transformed datasets
     │   └── external/            # Manually downloaded external files
     ├── notebooks/
-    │   ├── archive/             # Initial source exploration (API-Football, FBref, Sofascore)
-    │   └── 01_data_collection.ipynb
-    ├── src/
-    │   ├── data/                # Data ingestion and preprocessing scripts
-    │   ├── visualization/       # Reusable chart generation functions
-    │   └── models/              # Machine learning model scripts
-    ├── models/                  # Serialized trained models
+    │   ├── archive/             # Initial source exploration
+    │   ├── 01_data_collection.ipynb
+    │   ├── 02_data_processing.ipynb
+    │   ├── 03_visualization.ipynb
+    │   └── 04_<player>_<season>.ipynb
     ├── outputs/                 # Export-ready charts and infographics
-    └── docs/                    # Project documentation and references
+    ├── docs/                    # Project documentation and references
+    ├── .env.example             # Environment variable template
+    ├── .gitignore
+    └── requirements.txt
 
+---
 
 ## Setup
 
@@ -52,28 +69,35 @@ for social media content.
     pip install -r requirements.txt
 
     # 4. Configure environment variables
-    # Create a .env file and add your API keys (see .env.example)
+    # Copy .env.example to .env and fill in your API keys
+
+---
 
 ## Data Sources
 
-| Source      | Coverage                          | Access   |
-|-------------|-----------------------------------|----------|
-| SofaScore   | Match ratings, player stats, live | Scraping |
-| API-Football| Historical fixtures, team data    | Freemium |
+| Source       | Coverage                           | Access   |
+|--------------|------------------------------------|----------|
+| SofaScore    | Match ratings, player stats, live  | Scraping |
+| API-Football | Historical fixtures, team data     | Freemium |
+| FBref        | Advanced stats, historical data    | Scraping |
 
-## Setup — soccerdata Configuration
+---
+
+## soccerdata Configuration
 
 This project uses `soccerdata` to scrape FBref data for the Chilean
 Primera Division. Since this league is not included by default, a
 custom configuration file is required.
 
-Copy the file `docs/soccerdata_league_dict.json` to:
+Copy `docs/soccerdata_league_dict.json` to:
 
-    Windows : C:\Users\<your-username>\soccerdata\config\league_dict.json
+    Windows  : C:\Users\<your-username>\soccerdata\config\league_dict.json
     Mac/Linux: ~/soccerdata/config/league_dict.json
 
-Then restart your Python session before running any notebook.
+Restart your Python session before running any notebook.
+
+---
 
 ## Author
 
-Bryan Alegría — [GitHub](https://github.com/Bryan-Alegria)
+Bryan Alegria — [GitHub](https://github.com/Bryan-Alegria)
