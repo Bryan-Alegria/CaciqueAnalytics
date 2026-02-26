@@ -1,4 +1,8 @@
-# CaciqueAnalytics
+<div align="center">
+  <img src="assets/logo.png" alt="CaciqueAnalytics" width="160"/>
+
+  # CaciqueAnalytics
+</div>
 
 Statistical analysis and visualization applied to Chilean football,
 starting with Colo-Colo and the Primera Division.
@@ -11,12 +15,6 @@ This project collects, processes, and analyzes player-level statistics
 from Chilean football competitions. The goal is to build ranking systems
 by position, identify player profiles through clustering, and produce
 publication-ready visualizations for social media content.
-
----
-
-## Logo
-
-![CaciqueAnalytics](assets/logo.png)
 
 ---
 
