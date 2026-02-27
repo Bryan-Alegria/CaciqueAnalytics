@@ -1,5 +1,7 @@
 # =============================================================
-# CaciqueAnalytics — dependencies
+# CaciqueAnalytics -- dependencies
+# Install: pip install -r requirements.txt
+# LanusStats must be installed separately from GitHub (see below)
 # =============================================================
 
 # Environment management
@@ -13,23 +15,22 @@ numpy==2.4.2
 scikit-learn==1.8.0
 scipy==1.17.1
 
-# Football data collection
-soccerdata==1.8.8
-requests==2.32.5
+# Football data collection (SofaScore via LanusStats)
+# pip install git+https://github.com/federicorabanos/lanusStats.git
 beautifulsoup4==4.14.3
 lxml==6.0.2
+requests==2.32.5
 
-# Browser automation (SofaScore scraping)
-selenium==4.41.0
-seleniumbase==4.38.3
+# Browser automation (CDP -- pydoll replaces Selenium)
+pydoll-python==2.20.2
+nest-asyncio==1.6.0
+Faker==40.5.1
+# Fallback/legacy patch (undetected-chromedriver still referenced in notebook 01)
 undetected-chromedriver==3.5.5
-webdriver-manager==4.0.2
 
 # Visualization
 matplotlib==3.10.8
-seaborn==0.13.2
 mplsoccer==1.6.1
-highlight-text==0.2
 pillow==12.1.1
 
 # Notebook support

@@ -1,5 +1,5 @@
 # =============================================================
-# CaciqueAnalytics — .gitignore
+# CaciqueAnalytics -- .gitignore
 # =============================================================
 
 # Virtual environment
@@ -14,13 +14,21 @@ venv/
 data/raw/*
 data/external/*
 data/processed/*
+data/outputs/*
 !data/raw/.gitkeep
 !data/external/.gitkeep
 !data/processed/.gitkeep
 
-# Outputs (generated charts — not versioned)
+# Outputs (generated charts -- not versioned)
 outputs/*
 !outputs/.gitkeep
+
+# Player and asset photos (copyright / large binaries)
+assets/*.jpg
+assets/*.jpeg
+assets/*.png
+assets/*.webp
+!assets/logo.png
 
 # Python compiled files
 __pycache__/
@@ -36,7 +44,8 @@ models/*.pkl
 models/*.joblib
 models/*.h5
 
-# Selenium / browser automation
+# Browser automation
+drivers/
 geckodriver.log
 chromedriver.log
 *.log

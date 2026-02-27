@@ -20,21 +20,21 @@ publication-ready visualizations for social media content.
 
 ## Tech Stack
 
-| Area                | Libraries                                      |
-|---------------------|------------------------------------------------|
-| Data collection     | soccerdata, requests, beautifulsoup4, selenium |
-| Data processing     | pandas, numpy                                  |
-| Machine learning    | scikit-learn, scipy                            |
-| Visualization       | mplsoccer, matplotlib, seaborn, highlight-text |
-| Notebook support    | jupyter, jupyterlab, ipykernel                 |
-| Environment         | python-dotenv                                  |
+| Area                | Libraries                                                         |
+|---------------------|-------------------------------------------------------------------|
+| Data collection     | LanusStats, pydoll-python, nest-asyncio, beautifulsoup4           |
+| Data processing     | pandas, numpy, scipy                                              |
+| Machine learning    | scikit-learn                                                      |
+| Visualization       | mplsoccer, matplotlib, pillow, Faker                              |
+| Notebook support    | jupyter, jupyterlab, ipykernel, ipywidgets                        |
+| Environment         | python-dotenv                                                     |
 
 ---
 
 ## Project Structure
 
     CaciqueAnalytics/
-    ├── assets/                  # Logos, player photos and brand resources
+    ├── assets/                  # Logos and brand resources (photos excluded)
     ├── data/
     │   ├── raw/                 # Data as received from source APIs
     │   ├── processed/           # Cleaned and transformed datasets
@@ -44,7 +44,8 @@ publication-ready visualizations for social media content.
     │   ├── 01_data_collection.ipynb
     │   ├── 02_data_processing.ipynb
     │   ├── 03_visualization.ipynb
-    │   └── 04_<player>_<season>.ipynb
+    │   ├── 04_jeyson_rojas_2026.ipynb
+    │   └── 05_sosa_vs_zaldivia_2026.ipynb
     ├── outputs/                 # Export-ready charts and infographics
     ├── docs/                    # Project documentation and references
     ├── .env.example             # Environment variable template
@@ -73,26 +74,17 @@ publication-ready visualizations for social media content.
 
 ## Data Sources
 
-| Source       | Coverage                           | Access   |
-|--------------|------------------------------------|----------|
-| SofaScore    | Match ratings, player stats, live  | Scraping |
-| API-Football | Historical fixtures, team data     | Freemium |
-| FBref        | Advanced stats, historical data    | Scraping |
+| Source       | Coverage                           | Access              |
+|--------------|------------------------------------|---------------------|
+| SofaScore    | Match ratings, player stats, live  | LanusStats + pydoll |
 
 ---
 
-## soccerdata Configuration
+## Notes
 
-This project uses `soccerdata` to scrape FBref data for the Chilean
-Primera Division. Since this league is not included by default, a
-custom configuration file is required.
-
-Copy `docs/soccerdata_league_dict.json` to:
-
-    Windows  : C:\Users\<your-username>\soccerdata\config\league_dict.json
-    Mac/Linux: ~/soccerdata/config/league_dict.json
-
-Restart your Python session before running any notebook.
+- Player photo files (`assets/*.jpg`) are excluded from version control.
+- Processed CSVs (`data/processed/`) and raw data (`data/raw/`) are also excluded.
+- Run notebooks in order: `01` → `02` → `03` → `04` / `05`.
 
 ---
 
