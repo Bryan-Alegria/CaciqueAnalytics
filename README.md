@@ -45,9 +45,15 @@ publication-ready visualizations for social media content.
     │   ├── 02_data_processing.ipynb
     │   ├── 03_visualization.ipynb
     │   ├── 04_jeyson_rojas_2026.ipynb
-    │   └── 05_sosa_vs_zaldivia_2026.ipynb
-    ├── outputs/                 # Export-ready charts and infographics
+    │   ├── 05_sosa_vs_zaldivia_2026.ipynb
+    │   └── 06_victor_felipe_mendez_2026.ipynb
+    ├── outputs/
+    │   ├── jeyson_rojas/        # Exported charts — Jeyson Rojas post
+    │   ├── sosa_vs_zaldivia/    # Exported charts — Sosa vs Villagra post
+    │   └── victor_felipe_mendez/# Exported charts — Víctor Felipe Méndez post
     ├── docs/                    # Project documentation and references
+    ├── _extract_colors.py       # Diagnostic: dominant color inspection for asset PNGs
+    ├── detect_red.py            # Extracts inaccurate pass coords from SofaScore screenshots
     ├── .env.example             # Environment variable template
     ├── .gitignore
     └── requirements.txt
@@ -84,7 +90,8 @@ publication-ready visualizations for social media content.
 
 - Player photo files (`assets/*.jpg`) are excluded from version control.
 - Processed CSVs (`data/processed/`) and raw data (`data/raw/`) are also excluded.
-- Run notebooks in order: `01` → `02` → `03` → `04` / `05`.
+- Run notebooks in order: `01` → `02` → `03` → `04` / `05` / `06`.
+- `detect_red.py` and `_extract_colors.py` are standalone scripts; run them independently when rebuilding the inaccurate-pass estimates from new screenshots.
 
 ---
 

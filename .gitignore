@@ -20,6 +20,8 @@ data/outputs/*
 !data/processed/.gitkeep
 
 # Outputs (generated charts -- not versioned)
+# Subdirectories (jeyson_rojas/, sosa_vs_zaldivia/, victor_felipe_mendez/) are
+# auto-created at runtime by each notebook via OUTPUT_PATH.mkdir().
 outputs/*
 !outputs/.gitkeep
 
@@ -29,6 +31,9 @@ assets/*.jpeg
 assets/*.png
 assets/*.webp
 !assets/logo.png
+
+# Auto-generated diagnostic images (detect_red.py output)
+assets/diag_*.png
 
 # Python compiled files
 __pycache__/
