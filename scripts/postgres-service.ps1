@@ -40,8 +40,8 @@ function Resolve-PostgresServiceName {
         return $svc.Name
     }
 
-    $services = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Sort-Object Name
-    if (-not $services) {
+    $services = @(Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Sort-Object Name)
+    if ($services.Count -eq 0) {
         if ($FailIfMissing) {
             throw "No se encontro ningun servicio PostgreSQL. Instala PostgreSQL primero."
         }
@@ -52,7 +52,7 @@ function Resolve-PostgresServiceName {
         return $services[0].Name
     }
 
-    $running = $services | Where-Object { $_.Status -eq "Running" }
+    $running = @($services | Where-Object { $_.Status -eq "Running" })
     if ($running.Count -eq 1) {
         return $running[0].Name
     }
