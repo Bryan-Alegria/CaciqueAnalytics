@@ -82,9 +82,12 @@ publication-ready visualizations for social media content.
 
 ## Data Sources
 
-| Source       | Coverage                           | Access              |
-|--------------|------------------------------------|---------------------|
-| SofaScore    | Match ratings, player stats, live  | LanusStats + pydoll |
+| Source         | League ID | Seasons (LanusStats) | Coverage                                      | Access          |
+|----------------|-----------|----------------------|-----------------------------------------------|-----------------|
+| SofaScore      | `11653`   | 2023 – 2026          | Match ratings, player stats, heatmaps, events | LanusStats      |
+| FBref          | `35`      | 2021 – 2025          | Advanced stats per season (xG, xA, carries)   | LanusStats      |
+| FotMob         | `273`     | 2021 – 2025          | Shotmaps, percentiles, team/player season stats| LanusStats     |
+| Transfermarkt  | `CLPD`    | Dynamic (no limit)   | Market values, transfer history               | LanusStats      |
 
 ---
 
