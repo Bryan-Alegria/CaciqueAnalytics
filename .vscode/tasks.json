@@ -1,0 +1,89 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PostgreSQL: Start",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/postgres-start.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PostgreSQL: Stop",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/postgres-stop.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PostgreSQL: Status",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/postgres-status.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PostgreSQL: Startup Manual",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/postgres-service.ps1",
+        "-Action",
+        "manual"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (quick_question)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "quick_question"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (architecture)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "architecture"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

@@ -97,6 +97,24 @@ publication-ready visualizations for social media content.
 
 ---
 
+## Local PostgreSQL Ops (Windows)
+
+- Full setup guide: `docs/postgresql_windows_guide.md`
+- Service control scripts:
+  - `scripts/postgres-start.ps1`
+  - `scripts/postgres-stop.ps1`
+  - `scripts/postgres-status.ps1`
+
+---
+
+## Copilot Model Routing
+
+- Routing guide: `docs/copilot_model_routing.md`
+- Helper script: `scripts/copilot-model-advisor.ps1`
+- Project policy: `.github/copilot-instructions.md`
+
+---
+
 ## Author
 
 Bryan Alegria — [GitHub](https://github.com/Bryan-Alegria)
