@@ -13,3 +13,15 @@ data/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Fotos de jugadores (derechos de imagen)
+assets/*.jpg
+
+# Outputs exportados (regenerables desde notebooks)
+outputs/
+
+# Logs
+*.log
+
+# Memoria interna del agente (no pertenece al historial del proyecto)
+memory/
