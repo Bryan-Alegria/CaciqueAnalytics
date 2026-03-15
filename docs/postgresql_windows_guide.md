@@ -1,5 +1,7 @@
 # PostgreSQL Local en Windows 11 (pgAdmin)
 
+**Estado actual:** PostgreSQL 18.3 instalado y operativo (2026-03-15)
+
 Esta guia deja PostgreSQL instalado en local y configurado para apagarse cuando no se use.
 
 ## 1) Instalacion
@@ -20,9 +22,9 @@ Abre PowerShell y ejecuta:
 
 psql --version
 
-Si el comando no existe, agrega al PATH (reemplazar 17 con la version instalada — verificar en C:\Program Files\PostgreSQL\):
+Si el comando no existe, agrega al PATH (reemplazar 18 con la version instalada — verificar en C:\Program Files\PostgreSQL\):
 
-C:\Program Files\PostgreSQL\17\bin
+C:\Program Files\PostgreSQL\18\bin
 
 ## 3) Operacion diaria desde este repo
 
