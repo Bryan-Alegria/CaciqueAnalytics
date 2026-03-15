@@ -53,7 +53,11 @@
         "-Action",
         "manual"
       ],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     },
     {
       "label": "Copilot: Model Advisor (quick_question)",
@@ -71,6 +75,36 @@
       "problemMatcher": []
     },
     {
+      "label": "Copilot: Model Advisor (docs)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "docs"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (refactor_simple)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "refactor_simple"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Copilot: Model Advisor (architecture)",
       "type": "shell",
       "command": "powershell",
@@ -82,6 +116,51 @@
         "scripts/copilot-model-advisor.ps1",
         "-TaskType",
         "architecture"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (etl_critical)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "etl_critical"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (debug_complex)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "debug_complex"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Copilot: Model Advisor (code_review)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "scripts/copilot-model-advisor.ps1",
+        "-TaskType",
+        "code_review"
       ],
       "problemMatcher": []
     }
