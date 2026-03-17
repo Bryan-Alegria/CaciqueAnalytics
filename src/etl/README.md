@@ -51,8 +51,10 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=cacique_analytics
 DB_USER=cacique_app
-DB_PASSWORD=App@2026Cacique#Data!
+DB_PASSWORD=<tu_password_aqui>
 
 SOFASCORE_LEAGUE_ID=11653
 SOFASCORE_SEASON_2026=88493
 ```
+
+**IMPORTANTE**: Nunca commitear credenciales reales. Este es un template.
