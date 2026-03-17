@@ -56,10 +56,6 @@ CREATE INDEX IF NOT EXISTS idx_teams_transfermarkt_id
 -- ÍNDICES ADICIONALES PARA QUERIES DE ANÁLISIS
 -- =============================================================================
 
--- Permite búsquedas de stats defensivas por equipo
-CREATE INDEX IF NOT EXISTS idx_player_match_stats_player
-    ON player_match_stats(player_id);
-
 -- Permite análisis por temporada y equipo
 CREATE INDEX IF NOT EXISTS idx_team_season_stats_season
     ON team_season_stats(season_id);
@@ -85,7 +81,7 @@ CREATE INDEX IF NOT EXISTS idx_team_season_stats_season
 -- FIN DE MIGRACIÓN 002
 -- =============================================================================
 -- Resumen de cambios:
--- - 8 índices nuevos (6 críticos sobre FKs + 2 por análisis)
+-- - 9 índices nuevos (4 críticos sobre FKs + 4 parciales de APIs + 1 análisis)
 -- - Índices parciales sobre IDs externos (optimiza mapeo de APIs)
 -- - Mejora esperada: +40% en queries de joins en tablas grandes
 -- - Tamaño indexes estimado: ~50MB adicionales en BD

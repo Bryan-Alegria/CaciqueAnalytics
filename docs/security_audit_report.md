@@ -12,47 +12,47 @@
 
 | Elemento | Ubicación | Estado | Riesgo | Recomendación |
 |----------|-----------|--------|--------|---------------|
-| Contraseña PostgreSQL superusuario | `MEMORY.md` (memory/) |  Protegido (.gitignore) | Bajo | Rotación antes de producción |
-| Contraseña usuario cacique_app | `.env` + `MEMORY.md` |  Protegido (.gitignore) | Bajo | Rotación antes de producción |
-| APIs (SofaScore, FBref, etc.) | `.env` |  Vacío (no configurado) | Nulo | N/A - por configurar |
+| Contraseña PostgreSQL superusuario | `MEMORY.md` (memory/) | Protegido (.gitignore) | Bajo | Rotación antes de producción |
+| Contraseña usuario cacique_app | `.env` + `MEMORY.md` | Protegido (.gitignore) | Bajo | Rotación antes de producción |
+| APIs (SofaScore, FBref, etc.) | `.env` | Vacío (no configurado) | Nulo | N/A - por configurar |
 
-**Conclusión**:  **SEGURIDAD ADECUADA** para desarrollo local. No hay secretos en git.
+**Conclusión**: SEGURIDAD ADECUADA para desarrollo local. No hay secretos en git.
 
 ### 1.2 Código sin Hardcoding
 
 Revisadas búsquedas en:
--  `src/` — Sin credenciales hardcodeadas
--  `scripts/` — Scripts PowerShell sin passwords
--  `notebooks/` — Notebooks sin secretos
--  SQL migrations — Sin contraseñas en DDL
+- `src/` — Sin credenciales hardcodeadas
+- `scripts/` — Scripts PowerShell sin passwords
+- `notebooks/` — Notebooks sin secretos
+- SQL migrations — Sin contraseñas en DDL
 
-**Conclusión**:  **PRÁCTICAS SEGURAS** de configuración.
+**Conclusión**: PRÁCTICAS SEGURAS de configuración.
 
 ### 1.3 Historial de Git
 
--  Sin secretos en commits históricos (890ff8f ~ b6c4dfb verificados)
--  `.env` nunca fue commiteado
--  `memory/` nunca fue commiteado
+- Sin secretos en commits históricos (890ff8f ~ b6c4dfb verificados)
+- `.env` nunca fue commiteado
+- `memory/` nunca fue commiteado
 
-**Conclusión**:  **GIT LIMPIO** — historial seguro.
+**Conclusión**: GIT LIMPIO — historial seguro.
 
 ### 1.4 Gestión de Permisos
 
 | Usuario | Permisos | Propósito | Crítica |
 |---------|----------|-----------|---------|
 | `postgres` | Superusuario | DDL migrations, creación de BD | Usarse solo en setup |
-| `cacique_app` | SELECT, INSERT, UPDATE, DELETE | Aplicación |  Correcto (sin DROP) |
+| `cacique_app` | SELECT, INSERT, UPDATE, DELETE | Aplicación | Correcto (sin DROP) |
 
-**Conclusión**:  **MÍNIMO PRIVILEGIO** correctamente implementado.
+**Conclusión**: MÍNIMO PRIVILEGIO correctamente implementado.
 
 ### 1.5 Documentación de Seguridad
 
--  `.github/copilot-instructions.md` — Política documentada
--  `docs/postgresql_windows_guide.md` — Guía de setup seguro
--  `docs/claude_handover_context.md` — Checklist de auditoría
--  `.gitignore` — Completo (`.env`, `memory/`, datos, logs)
+- `.github/copilot-instructions.md` — Política documentada
+- `docs/postgresql_windows_guide.md` — Guía de setup seguro
+- `docs/claude_handover_context.md` — Checklist de auditoría
+- `.gitignore` — Completo (`.env`, `memory/`, datos, logs)
 
-**Conclusión**:  **DOCUMENTACIÓN SEGURA** — políticas claras.
+**Conclusión**: DOCUMENTACIÓN SEGURA — políticas claras.
 
 ---
 
@@ -72,7 +72,7 @@ Revisadas búsquedas en:
 
 ### 2.2 Validación de Constraints
 
-#### Foreign Keys —  EXCELENTES
+#### Foreign Keys — EXCELENTES
 
 ```sql
 -- Ejemplo: players.nationality_id → nationalities.id (nullable)
@@ -81,18 +81,18 @@ Revisadas búsquedas en:
 ```
 
 Todas las relaciones verificadas:
--  10 tablas con constraints completos
--  Sin dependencias circulares
--  Nullability definida correctamente
+- 10 tablas con constraints completos
+- Sin dependencias circulares
+- Nullability definida correctamente
 
-#### Primary Keys —  COMPLETAS
+#### Primary Keys — COMPLETAS
 
 ```sql
 -- Todas las 12 tablas tienen SERIAL PRIMARY KEY
 -- Genera IDs auto-incrementales confiables
 ```
 
-#### Unique Constraints —  COMPRENSIVAS
+#### Unique Constraints — COMPRENSIVAS
 
 ```sql
 -- Ejemplos:
@@ -101,7 +101,7 @@ Todas las relaciones verificadas:
 -- player_season_stats(player_id, season_id, team_id, source) UNIQUE
 ```
 
-#### Check Constraints —  ROBUSTOS
+#### Check Constraints — ROBUSTOS
 
 ```sql
 -- position_group IN ('GK', 'DEF', 'MID', 'FWD')
@@ -113,19 +113,19 @@ Todas las relaciones verificadas:
 
 | Campo | Tipo | Validez | Nota |
 |-------|------|---------|------|
-| `player_season_stats.xg` | NUMERIC(6,2) |  | 99.99 xG máximo — apropiado |
-| `player_season_stats.key_passes_p90` | NUMERIC(5,2) |  | 0-99.99 p/90 — apropiado |
-| `matches.home_score` | SMALLINT |  | 0-150 posible — suficiente |
-| `players.height_cm` | SMALLINT |  | 100-250cm — suficiente |
-| Timestamps | TIMESTAMPTZ |  | Zona horaria: America/Santiago |
+| `player_season_stats.xg` | NUMERIC(6,2) | Correcto | 99.99 xG máximo — apropiado |
+| `player_season_stats.key_passes_p90` | NUMERIC(5,2) | Correcto | 0-99.99 p/90 — apropiado |
+| `matches.home_score` | SMALLINT | Correcto | 0-150 posible — suficiente |
+| `players.height_cm` | SMALLINT | Correcto | 100-250cm — suficiente |
+| Timestamps | TIMESTAMPTZ | Correcto | Zona horaria: America/Santiago |
 
-** Observaciones**:
+Observaciones:
 - `player_match_stats.minutes_played` es SMALLINT (0-120) — está bien
 - Falta TIMESTAMPTZ en `player_team_seasons`, `player_season_stats`, `team_season_stats`
 
 ### 2.4 Validación de Índices
 
-#### Definidos 
+#### Definidos
 
 ```
 idx_players_full_name           ← Búsqueda de jugadores por nombre
@@ -136,7 +136,7 @@ idx_matches_season_date         ← Partidos por fecha
 idx_pmv_player_date             ← Historial de valores por fecha
 ```
 
-#### Faltantes  (Mitigados en migration 002)
+#### Faltantes (Mitigados en migration 002)
 
 ```
 idx_player_team_seasons_team_season
@@ -152,7 +152,7 @@ idx_teams_sofascore_id          ← Mapeo de APIs
 
 ### 2.5 Validación de Datos Semilla
 
-#### Posiciones —  CORRECTAS
+#### Posiciones — CORRECTAS
 
 ```
 19 posiciones seeded:
@@ -161,7 +161,7 @@ CDM/CM_B2B/Mezzala/Regista/CAM/RM/LM (7),
 RW/LW/CF/SS (4)
 ```
 
-#### Competiciones —  CORRECTAS
+#### Competiciones — CORRECTAS
 
 ```
 4 competiciones:
@@ -179,9 +179,9 @@ Esperada carga externa via LanusStats.
 
 | Issue | Severidad | Estado | Solución |
 |-------|-----------|--------|----------|
-| Índices FK faltantes | ALTA |  Resuelto en migration 002 | Ejecutar 002_optimize_indexes.sql |
-| Timestamps en stats | MEDIA |  Futuro | Migration 003 (opcional) |
-| Soft-delete para auditoría | BAJA |  Futuro | Migration 004+ |
+| Índices FK faltantes | ALTA | Resuelto en migration 002 | Ejecutar 002_optimize_indexes.sql |
+| Timestamps en stats | MEDIA | Futuro | Migration 003 (opcional) |
+| Soft-delete para auditoría | BAJA | Futuro | Migration 004+ |
 
 ---
 
@@ -196,15 +196,15 @@ GRANT USAGE, SELECT                  ON ALL SEQUENCES IN SCHEMA public TO caciqu
 ```
 
 **Análisis**:
--  Puede SELECT — leer datos
--  Puede INSERT — agregar registros
--  Puede UPDATE — modificar registros
--  Puede DELETE — eliminar registros
-- ❌ NO puede DROP — no elimina tablas
-- ❌ NO puede CREATE — no crea tablas
-- ❌ NO puede ALTER — no modifica schema
+- Puede SELECT — leer datos
+- Puede INSERT — agregar registros
+- Puede UPDATE — modificar registros
+- Puede DELETE — eliminar registros
+- NO puede DROP — no elimina tablas
+- NO puede CREATE — no crea tablas
+- NO puede ALTER — no modifica schema
 
-**Conclusión**:  **PERMISOS IDÓNEOS** para aplicación de lectura/escritura sin DDL.
+**Conclusión**: PERMISOS IDÓNEOS para aplicación de lectura/escritura sin DDL.
 
 ### 3.2 Testeo de Permisos (recomendado)
 
@@ -226,17 +226,17 @@ psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM positions;"
 
 ### 4.1 INMEDIATAS (antes de producción)
 
-1.  **Ejecutar migration 002** — Agregar índices críticos
+1. **Ejecutar migration 002** — Agregar índices críticos
    ```bash
    psql -U postgres -d cacique_analytics -f src/migrations/002_optimize_indexes.sql
    ```
 
-2.  **Rotación de credenciales** — Generar nuevas contraseñas si se mueve a:
+2. **Rotación de credenciales** — Generar nuevas contraseñas si se mueve a:
    - Servidor compartido
    - Supabase cloud
    - Producción
 
-3.  **Setup de backups** — Configurar backups automáticos PostgreSQL Windows
+3. **Setup de backups** — Configurar backups automáticos PostgreSQL Windows
 
 ### 4.2 MEDIANO PLAZO (próximos sprints)
 
@@ -260,23 +260,23 @@ psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM positions;"
 
 ## 5. Conclusiones
 
-###  Seguridad
+### Seguridad
 - **Estado**: LIMPIO para desarrollo local
 - **Riesgo**: BAJO — secretos protegidos, código seguro, git limpio
 - **Recomendación**: APROBADO para desarrollo. Rotación requerida antes de producción.
 
-###  Integridad de BD
+### Integridad de BD
 - **Score**: 7.1/10 (Muy Bueno)
 - **Funcional**: TODO - constraints, tipos, seed data correctos
 - **Performance**: MEJORABLE - migration 002 agrega índices críticos
 - **Recomendación**: APROBADO con migración 002 requerida
 
-###  Operación
+### Operación
 - **Estado**: ÓPTIMO - permisos mínimos implementados
 - **Auditoría**: RECOMENDADA - implementar scripts de validación
 - **Escalabilidad**: BUENA - soporta 150k registros +
 
-**VEREDICTO FINAL**:  **PROYECTO APTO PARA SPRINT 1 FASE 1C (ETL)**
+**VEREDICTO FINAL**: PROYECTO APTO PARA SPRINT 1 FASE 1C (ETL)
 
 ---
 

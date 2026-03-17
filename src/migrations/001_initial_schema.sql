@@ -63,7 +63,7 @@ ON CONFLICT (code) DO NOTHING;
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS competitions (
     id             SERIAL PRIMARY KEY,
-    name           VARCHAR(150) NOT NULL,
+    name           VARCHAR(150) NOT NULL UNIQUE,
     country        VARCHAR(50),
     type           VARCHAR(20),
     sofascore_id   INTEGER UNIQUE,
@@ -78,7 +78,7 @@ INSERT INTO competitions (name, country, type, sofascore_id, fbref_id, fotmob_id
     ('Copa Chile',                'Chile',  'cup',         NULL,  NULL, NULL),
     ('Copa Libertadores',         NULL,     'continental', 384,   14,  42),
     ('Copa Sudamericana',         NULL,     'continental', 480,   NULL, NULL)
-ON CONFLICT (sofascore_id) DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 
 -- -----------------------------------------------------------------------------

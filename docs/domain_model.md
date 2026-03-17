@@ -324,15 +324,16 @@ team_season_stats                ← stats de equipo por temporada
 
 | Temporada | FBref | FotMob | SofaScore | Transfermarkt |
 |-----------|-------|--------|-----------|---------------|
-| 2021      | ✅    | ✅     | ❌        | ✅            |
-| 2022      | ✅    | ✅     | ❌        | ✅            |
-| 2023      | ✅    | ✅     | ✅        | ✅            |
-| 2024      | ✅    | ✅     | ✅        | ✅            |
-| 2025      | ✅    | ✅     | ✅        | ✅            |
-| 2026      | ❌*   | ❌*    | ✅        | ✅            |
+| 2021      | Si    | Si     | No        | Si            |
+| 2022      | Si    | Si     | No        | Si            |
+| 2023      | Si    | Si     | Si        | Si            |
+| 2024      | Si    | Si     | Si        | Si            |
+| 2025      | Si    | Si     | Si        | Si            |
+| 2026      | No*   | No*    | Si        | Si            |
 
 *FBref y FotMob son oficiales solo hasta 2025 en LanusStats 2.0.1. Se puede extender
 manualmente en `functions.py` cuando los datos estén disponibles.
+
 
 ---
 
