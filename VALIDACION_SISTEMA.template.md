@@ -1,7 +1,20 @@
 # VALIDACIÓN DE SISTEMA — CaciqueAnalytics
 
 **Propósito**: Remítete a esta guía para verificar que todo el setup está correcto.
-**Última actualización**: 16 de Marzo de 2026
+**Última actualización**: 17 de Marzo de 2026
+
+**IMPORTANTE**: Este archivo es un template. Las credenciales deben cargarse desde `.env`.
+
+---
+
+## Configuración Previa
+
+```bash
+# Cargar credenciales desde .env
+source .env  # Linux/Mac
+# O manualmente en PowerShell:
+$env:PGPASSWORD = (Get-Content .env | Select-String "DB_PASSWORD").ToString().Split("=")[1]
+```
 
 ---
 
@@ -11,10 +24,10 @@
 
 ```bash
 # Desde PowerShell (cualquier usuario)
-gslist PostgreSQL-x64-18 | findstr Running
+sc query postgresql-x64-18 | findstr RUNNING
 ```
 
-**Resultado esperado**: `Running`
+**Resultado esperado**: `RUNNING`
 
 **Si no está activo**:
 ```powershell
@@ -27,8 +40,8 @@ gslist PostgreSQL-x64-18 | findstr Running
 ### Paso 2: Base de Datos Existe
 
 ```bash
-# Desde PowerShell admin
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT datname FROM pg_database WHERE datname='cacique_analytics';"
+# Credenciales desde .env
+psql -U cacique_app -d cacique_analytics -c "SELECT datname FROM pg_database WHERE datname='cacique_analytics';"
 ```
 
 **Resultado esperado**:
@@ -43,14 +56,14 @@ PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
 ### Paso 3: Tablas Creadas (12)
 
 ```bash
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
 ```
 
 **Resultado esperado**: `12`
 
 **Ver lista completa**:
 ```bash
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name;"
+psql -U cacique_app -d cacique_analytics -c "SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name;"
 ```
 
 Deberías ver:
@@ -77,21 +90,21 @@ Deberías ver:
 
 ```bash
 # Posiciones
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM positions;"
+psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM positions;"
 ```
 
 **Resultado esperado**: `19`
 
 ```bash
 # Competencias
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM competitions;"
+psql -U cacique_app -d cacique_analytics -c "SELECT COUNT(*) FROM competitions;"
 ```
 
 **Resultado esperado**: `4`
 
 **Ver detalles de posiciones**:
 ```bash
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT code, name_es, position_group FROM positions ORDER BY position_group, code;"
+psql -U cacique_app -d cacique_analytics -c "SELECT code, name_es, position_group FROM positions ORDER BY position_group, code;"
 ```
 
 ---
@@ -100,21 +113,21 @@ PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
 
 ```bash
 # Should work: SELECT
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "SELECT 1;"
+psql -U cacique_app -d cacique_analytics -c "SELECT 1;"
 ```
 
 **Resultado esperado**: `1`
 
 ```bash
 # Should work: INSERT (test en tabla temporal)
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "INSERT INTO nationalities (name, code) VALUES ('TEST', 'ZZ'); DELETE FROM nationalities WHERE code='ZZ';"
+psql -U cacique_app -d cacique_analytics -c "INSERT INTO nationalities (name, code) VALUES ('TEST', 'ZZ'); DELETE FROM nationalities WHERE code='ZZ';"
 ```
 
-**Resultado esperado**: No erro
+**Resultado esperado**: No error
 
 ```bash
 # Should FAIL: DROP
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "DROP TABLE positions;"
+psql -U cacique_app -d cacique_analytics -c "DROP TABLE positions;"
 ```
 
 **Resultado esperado**: `ERROR: permission denied for table positions`
@@ -125,7 +138,7 @@ PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
 
 ```bash
 # Verificar constraints
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
+psql -U cacique_app -d cacique_analytics -c "
 SELECT constraint_name, constraint_type, table_name
 FROM information_schema.table_constraints
 WHERE table_schema='public'
@@ -141,23 +154,23 @@ ORDER BY table_name;
 
 ```bash
 # Contar índices (esperado: ~15+ después de migration 002)
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
+psql -U cacique_app -d cacique_analytics -c "
 SELECT COUNT(*) as cantidad_indices FROM pg_indexes WHERE schemaname='public';
 "
 ```
 
-**Resultado esperado**: `14` (inicial) o `22` (después de migration 002)
+**Resultado esperado**: `15` (inicial) o `24+` (después de migration 002)
 
 **Ver lista de índices**:
 ```bash
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
+psql -U cacique_app -d cacique_analytics -c "
 SELECT indexname FROM pg_indexes WHERE schemaname='public' ORDER BY indexname;
 "
 ```
 
 ---
 
-## ⚙️ Auditoría Adicional
+## Auditoría Adicional
 
 ### Verificar Secretos en Repositorio
 
@@ -165,12 +178,12 @@ SELECT indexname FROM pg_indexes WHERE schemaname='public' ORDER BY indexname;
 cd C:\Users\PC\Projects\CaciqueAnalytics
 
 # Buscar palabras como "password", "secret", etc.
-git grep -i "password" -- ':!.env' ':!.env.example' ':!memory'
+git grep -i "password" -- ':!.env' ':!.env.example' ':!memory' ':!VALIDACION_SISTEMA.md'
 ```
 
 **Resultado esperado**: Sin matches (ningún archivo debería tener contraseña)
 
-__Verificar .gitignore Efectivo__:
+**Verificar .gitignore Efectivo**:
 
 ```bash
 # .env NO debería estar en git
@@ -180,12 +193,11 @@ git check-ignore .env
 **Resultado esperado**: `.env` (confirmando que está ignorado)
 
 ```bash
-# Data cruda NO debería estar en git
-git check-ignore data/raw/example.csv
-git check-ignore memory/MEMORY.md
+# VALIDACION_SISTEMA.md NO debería estar en git
+git check-ignore VALIDACION_SISTEMA.md
 ```
 
-**Resultado esperado**: Ambos ignorados
+**Resultado esperado**: `VALIDACION_SISTEMA.md`
 
 ---
 
@@ -193,7 +205,7 @@ git check-ignore memory/MEMORY.md
 
 ```bash
 # Verificar que las posiciones seeded funcionan
-PGPASSWORD='App@2026Cacique#Data!' psql -U cacique_app -d cacique_analytics -c "
+psql -U cacique_app -d cacique_analytics -c "
 SELECT
     p.code,
     p.name_es,
@@ -232,23 +244,16 @@ $env:Path += ";C:\Program Files\PostgreSQL\18\bin"
 
 ```bash
 # Verificar credenciales en .env
-cat .env | grep PG_
-
-# Resultado esperado:
-# PG_USER=cacique_app
-# PG_PASSWORD=App@2026Cacique#Data!
-
-# NOTA: Si cambiaste la contraseña, actualiza .env
+cat .env | grep DB_PASSWORD
 ```
 
 ### Problema: `database "cacique_analytics" does not exist`
 
 ```bash
-# Verificar que se creó la BD
-PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -c "SELECT datname FROM pg_database WHERE datname LIKE '%cacique%';"
+# Verificar que se creó la BD (requiere credenciales de postgres desde .env)
+psql -U postgres -c "SELECT datname FROM pg_database WHERE datname LIKE '%cacique%';"
 
-# Si no existe, crear (como admin):
-PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -c "CREATE DATABASE cacique_analytics; GRANT CONNECT ON DATABASE cacique_analytics TO cacique_app;"
+# Si no existe, usar migration 001
 ```
 
 ### Problema: `ERROR: relation "positions" does not exist`
@@ -259,10 +264,9 @@ PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -c "CREATE DATABASE caci
 # Reimplementar migrations:
 cd C:\Users\PC\Projects\CaciqueAnalytics
 
-# Como admin:
-PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -d cacique_analytics -f src/migrations/001_initial_schema.sql
-
-PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -d cacique_analytics -f src/migrations/002_optimize_indexes.sql
+# Como postgres (credenciales desde .env):
+psql -U postgres -d cacique_analytics -f src/migrations/001_initial_schema.sql
+psql -U postgres -d cacique_analytics -f src/migrations/002_optimize_indexes.sql
 ```
 
 ---
@@ -271,14 +275,14 @@ PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -d cacique_analytics -f 
 
 | Componente | Esperado | Verificar | Estado |
 |-----------|----------|-----------|--------|
-| PostgreSQL | 18.3 | `Services` app o `postgres --version` | OK |
+| PostgreSQL | 18.3 | `sc query postgresql-x64-18` | OK |
 | BD | `cacique_analytics` | Paso 2 | OK |
 | Tablas | 12 | Paso 3 | OK |
 | Posiciones | 19 | Paso 4 | OK |
 | Competencias | 4 | Paso 4 | OK |
 | Permisos | cacique_app (SELECT, INSERT, UPDATE, DELETE) | Paso 5 | OK |
 | Constraints | FKs, PKs, UCs, CHECKs | Paso 6 | OK |
-| Índices | 14+ (22+ con optimization) | Paso 7 | OK |
+| Índices | 15+ (24+ con optimization) | Paso 7 | OK |
 | Secretos | Ninguno en git | Auditoría | OK |
 
 ---
@@ -287,8 +291,7 @@ PGPASSWORD='Pg@2026Cacique#Analytics!' psql -U postgres -d cacique_analytics -f 
 
 Proceder a:
 1. **Sprint 1 Fase 1C**: ETL implementation con LanusStats
-2. **Ejecución**: Descargar datos del 2021-2026
+2. **Ejecución**: Descargar datos temporada 2026
 3. **Análisis**: Generar rankings y visualizaciones
 
 Próxima revisión: 20 de Marzo de 2026 (post-ETL)
-

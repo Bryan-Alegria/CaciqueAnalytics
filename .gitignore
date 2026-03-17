@@ -1,5 +1,6 @@
 # Seguridad: NUNCA subir variables de entorno, contraseñas o archivos de configuración con información sensible
 .env
+VALIDACION_SISTEMA.md
 
 # Entornos virtuales
 venv/
