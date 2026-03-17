@@ -43,6 +43,8 @@ PORTERO
 
 DEFENSA
   ├── CB      Central
+  ├── STP     Stopper (central agresivo — sale a marcar, back-3)
+  ├── SW      Líbero / Sweeper (último hombre, distribuye desde atrás)
   ├── RB      Lateral Derecho
   ├── LB      Lateral Izquierdo
   ├── RWB     Carrilero Derecho (lateral ofensivo)
@@ -79,18 +81,28 @@ ATAQUE
 | salidas_exitosas           | SofaScore    | Sí     |
 | duelos_aereos_ganados      | SofaScore    | Sí     |
 
-### CB / RB / LB / RWB / LWB — Defensores
-| Métrica                    | Fuente       | Por 90 |
-|----------------------------|--------------|--------|
-| duelos_suelo_ganados       | SofaScore    | Sí     |
-| duelos_aereos_pct          | SofaScore    | No     |
-| intercepciones             | SofaScore    | Sí     |
-| despejes                   | SofaScore    | Sí     |
-| precision_pases_pct        | SofaScore    | No     |
-| pelotas_largas_pct         | SofaScore    | No     |
-| regates_exitosos           | SofaScore    | Sí     |
-| centros_exitosos           | SofaScore    | Sí     |
-| carries_progresivos        | FBref        | Sí     |
+### CB / STP / RB / LB / RWB / LWB — Defensores
+| Métrica                    | Fuente       | Por 90 | Énfasis                  |
+|----------------------------|--------------|--------|--------------------------|
+| duelos_suelo_ganados       | SofaScore    | Sí     | STP, CB, RB, LB          |
+| duelos_aereos_pct          | SofaScore    | No     | STP, CB                  |
+| intercepciones             | SofaScore    | Sí     | STP, CB, CDM             |
+| despejes                   | SofaScore    | Sí     | CB, STP                  |
+| precision_pases_pct        | SofaScore    | No     | Todos                    |
+| pelotas_largas_pct         | SofaScore    | No     | SW, Regista              |
+| regates_exitosos           | SofaScore    | Sí     | RWB, LWB, RB, LB         |
+| centros_exitosos           | SofaScore    | Sí     | RWB, LWB, RB, LB         |
+| carries_progresivos        | FBref        | Sí     | SW, RWB, LWB             |
+
+### SW — Líbero / Sweeper
+| Métrica                    | Fuente       | Por 90 | Nota                                     |
+|----------------------------|--------------|--------|------------------------------------------|
+| precision_pases_pct        | SofaScore    | No     | Principal diferenciador vs CB clásico    |
+| pelotas_largas_pct         | SofaScore    | No     | Sale jugando desde el fondo              |
+| carries_progresivos        | FBref        | Sí     | Conduce para salir de la presión         |
+| pases_ultimo_tercio        | FBref        | Sí     | Inicia jugada hacia el tercio final      |
+| duelos_suelo_ganados       | SofaScore    | Sí     | Base defensiva requerida                 |
+| intercepciones             | SofaScore    | Sí     | Lee el juego, es el último recurso       |
 
 ### CDM / CM_B2B / Mezzala / Regista — Mediocampistas
 | Métrica                    | Fuente       | Por 90 | Aplica a             |
