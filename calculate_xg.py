@@ -126,7 +126,10 @@ for comp in predict_df["competition"].unique():
     print(f"\n  {comp} ({len(comp_df)} players):")
     sample = comp_df.nlargest(3, "goals")[["player", "team", "year", "goals", "shots_total", "shots_on_target", "predicted_xg"]]
     for _, row in sample.iterrows():
-        print(f"    {row['player']:<22} G:{row['goals']:>2} S:{row['shots_total']:>2} SoT:{row['shots_on_target']:>2} -> xG:{row['predicted_xg']:.2f}")
+        g = row['goals'] if row['goals'] is not None else 0
+        s = row['shots_total'] if row['shots_total'] is not None else 0
+        sot = row['shots_on_target'] if row['shots_on_target'] is not None else 0
+        print(f"    {row['player']:<22} G:{g:>2} S:{s:>2} SoT:{sot:>2} -> xG:{row['predicted_xg']:.2f}")
 
 # 7. Update database
 print("\n=== UPDATING DATABASE ===")

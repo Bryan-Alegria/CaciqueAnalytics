@@ -64,6 +64,16 @@ class TopScorers(BaseTemplate):
 
         df = pd.read_sql(query, conn, params=tuple(query_params))
         conn.close()
+        
+        # Get competition name for subtitle
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM competitions WHERE id = %s", (competition_id,))
+        comp_row = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        df.attrs = {"season": season_year, "competition": comp_row[0] if comp_row else "Unknown"}
         return df
 
     def plot(self, data: pd.DataFrame) -> plt.Figure:
@@ -100,8 +110,9 @@ class TopScorers(BaseTemplate):
 
         # Subtitle
         season = data.attrs.get("season", "2026") if hasattr(data, "attrs") else "2026"
+        comp_name = data.attrs.get("competition", "Chile Primera Division") if hasattr(data, "attrs") else "Chile Primera Division"
         ax.text(
-            540, 940, f"Chile Primera Division {season}",
+            540, 940, f"{comp_name} {season}",
             fontsize=fonts["subtitle"]["size"],
             fontweight=fonts["subtitle"]["weight"],
             color=colors["text_muted"],
@@ -149,7 +160,10 @@ class TopScorers(BaseTemplate):
             )
 
             # Stats
-            stats_text = f"{int(row['goals'])} goals  |  {int(row['assists'])} assists  |  {row['rating']:.2f} rating"
+            goals = int(row['goals']) if pd.notna(row['goals']) else 0
+            assists = int(row['assists']) if pd.notna(row['assists']) else 0
+            rating = f"{row['rating']:.2f}" if pd.notna(row['rating']) else "N/A"
+            stats_text = f"{goals} goals  |  {assists} assists  |  {rating} rating"
             ax.text(
                 1050, y, stats_text,
                 fontsize=fonts["body"]["size"],

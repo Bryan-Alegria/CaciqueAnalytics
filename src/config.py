@@ -25,6 +25,7 @@ SOFASCORE_LEAGUES = {
     "Primera Chile": 11653,
     "Copa Libertadores": 384,
     "Copa Sudamericana": 480,
+    "Copa de la Liga": 32734,
 }
 
 # Season IDs (2026)
@@ -32,9 +33,10 @@ SEASONS_2026 = {
     11653: 88493,  # Primera Chile
     384: 87760,    # Libertadores
     480: 87770,    # Sudamericana
+    32734: 90922,  # Copa de la Liga (first edition, 2026 calendar year)
 }
 
-# 2025 for comparison
+# Season IDs (2025)
 SEASONS_2025 = {
     11653: 71131,
     384: 70083,

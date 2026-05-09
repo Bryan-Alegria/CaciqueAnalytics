@@ -49,3 +49,17 @@ def run_chile_primera_2026():
         season_id=1,  # TODO: fetch from DB
         competition_id=1,
     )
+
+
+def run_copa_de_la_liga_2026():
+    """Convenience function for Chile Copa de la Liga 2026.
+    
+    Note: SofaScore/LanusStats internally labels this season as '2025'
+    but it is the 2026 calendar year edition (first edition).
+    """
+    return run_pipeline(
+        league="Chile Copa de la Liga",
+        season="2025",  # LanusStats internal season label
+        season_id=6,
+        competition_id=6,
+    )

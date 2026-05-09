@@ -17,9 +17,10 @@ issues = []
 # 1. NULL values
 print("\n[1] NULL VALUE CHECK")
 cur.execute("SELECT COUNT(*) FROM player_season_stats WHERE expected_goals IS NULL")
-if cur.fetchone()[0] > 0:
-    issues.append("NULL xG values found")
-print("  xG: 0 NULLs - OK")
+null_xg = cur.fetchone()[0]
+if null_xg > 0:
+    issues.append(f"NULL xG values found: {null_xg}")
+print(f"  xG: {null_xg} NULLs - {'OK' if null_xg == 0 else 'FAIL'}")
 
 # 2. Duplicates
 print("\n[2] DUPLICATE CHECK")
