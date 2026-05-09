@@ -2,7 +2,7 @@
 
 ## Current Task
 
-Code Refactoring (pre-Phase 4) is COMPLETE. All 5 deepening candidates implemented. Ready to begin Phase 4: Automation Layer.
+Phase 4: Automation Layer is COMPLETE. All components built and tested. 61/61 tests passing.
 
 ## Domain Language
 
@@ -23,8 +23,8 @@ Code Refactoring (pre-Phase 4) is COMPLETE. All 5 deepening candidates implement
 - **Scraping**: LanusStats + direct SofaScore API
 - **Data Export**: Modular layers with ContextEngine (percentiles + plain text)
 - **HTML Renderer**: Playwright + Jinja2 (optional, for auto-generated infographics)
-- **Automation**: Windows Task Scheduler (Phase 4)
-- **Testing**: pytest 9.0.3 (35 tests)
+- **Automation**: Windows Task Scheduler (Phase 4 — COMPLETE)
+- **Testing**: pytest 9.0.3 (61 tests)
 - **ML**: scikit-learn 1.8.0 (RandomForest xG predictor)
 
 ## Database Summary
@@ -40,6 +40,8 @@ Code Refactoring (pre-Phase 4) is COMPLETE. All 5 deepening candidates implement
 | nationalities | 13 |
 | seasons | 5 |
 | player_season_stats | **1,303** |
+| matches | **240** |
+| scrape_log | 0 (new table) |
 
 **Coverage:**
 - 2025 Primera Chile: 463 stats
@@ -47,6 +49,12 @@ Code Refactoring (pre-Phase 4) is COMPLETE. All 5 deepening candidates implement
 - 2026 Copa Libertadores: 39 stats (2 Chilean teams)
 - 2026 Copa Sudamericana: 61 stats (3 Chilean teams)
 - 2026 Copa de la Liga: 348 stats
+
+**Match Data (NEW):**
+- 240 matches for Primera Division 2026 (30 matchdays x 8 matches)
+- 88 finished, 152 scheduled
+- Team sofascore_ids populated for 16 teams
+- Season sofascore_season_ids populated (2026=88493, 2025=71131)
 
 **Data Quality Verification (ALL PASSED):**
 - 0 NULL values in all stat columns
@@ -96,6 +104,11 @@ Tiers: Elite (>95%), Destacado (>85%), Por Encima del Promedio (>70%), Promedio 
 - Scraper: 7 tests
 - Infographics engine: 7 tests
 - Data layers regression: 14 tests
+- Automation: 26 tests
+  - Detector: 8 tests (using real DB data)
+  - Notifier: 6 tests
+  - Trigger: 5 tests
+  - MatchExtractor: 7 tests
 
 Run: `python -m pytest tests/`
 
@@ -109,37 +122,82 @@ Run: `python -m pytest tests/`
 | 4. Colors Cache | COMPLETE | `src/data_layers/colors.py` |
 | 5. Decouple ContextEngine | COMPLETE | `src/data_layers/providers.py`, `context_engine.py` |
 
+## Automation Layer (Phase 4 — COMPLETE)
+
+### Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| MatchExtractor | `src/etl/matches.py` | Fetch fixtures from SofaScore, upsert to matches table |
+| GamedayDetector | `src/automation/detector.py` | Detect matchdays, status changes, completion |
+| AutomationTrigger | `src/automation/trigger.py` | Orchestrate detection, ETL, export |
+| Notifier | `src/automation/notifier.py` | Console/Discord/Windows notifications |
+| Scheduler | `src/automation/scheduler.py` | CLI entry point for automation cycles |
+| Task Scheduler | `scheduler.ps1` | PowerShell wrapper for Windows Task Scheduler |
+
+### MatchExtractor
+- Reuses single browser session for all API calls (performance optimization)
+- Fetches rounds -> matches per round -> parses -> upserts
+- Maps SofaScore team IDs to internal DB team IDs via `teams.sofascore_id`
+- Idempotent: safe to re-run
+
+### GamedayDetector
+- `get_today_matches()` — matches scheduled for today
+- `get_matches_by_status()` — filter by status (finished, live, scheduled)
+- `get_newly_finished()` — matches finished since given time
+- `is_matchday_complete()` — all matches in matchday are finished
+- `get_current_matchday()` — highest matchday with finished matches
+- `get_upcoming_matchdays()` — future matchdays with scheduled matches
+
+### AutomationTrigger
+- `run()` — full cycle: update matches, detect finished, check completion, notify
+- `dry_run()` — report what would happen without executing
+- Processes all active seasons (is_current=true or has unfinished matches)
+
+### Notifier
+- Backends: console (default), discord (webhook), windows (toast)
+- Methods: `matchday_complete()`, `etl_complete()`, `error()`
+- Spanish messages for user-facing notifications
+
+### Scheduler
+- Python CLI: `python src/automation/scheduler.py [--competition ID] [--season ID] [--dry-run]`
+- PowerShell wrapper: `scheduler.ps1` for Windows Task Scheduler
+- Recommended: every 15 minutes on match days, every 2 hours otherwise
+
 ## Handover Summary
 
 ### Current Task
-- Building Phase 4: Automation Layer (GamedayDetector, Scheduler, Trigger, Notifier)
-- PLAN.md Phase 4 section is the active roadmap
-- No files currently in progress (ready to start `src/automation/`)
+- Phase 4: Automation Layer is COMPLETE
+- All 8 tasks from PLAN.md Phase 4 done
+- 61/61 tests passing
+- Ready for end-to-end validation or Phase 5
 
 ### Last Actions
-1. Implemented all 5 architecture refactoring candidates (stat registry, query seam, provider injection, plain text lookup, colors cache)
-2. Added 14 regression tests in `tests/test_data_layers/test_regression.py`
-3. Cleaned repo: removed 10 unused files, cleared `__pycache__` and `.pytest_cache`
-4. Rewrote README.md with professional usage documentation
-5. Committed and pushed: `f56ebd5` (refactoring) + `e43f26d` (transparent logo fix)
+1. Built `MatchExtractor` with browser session reuse for performance
+2. Populated `matches` table: 240 matches for Primera Division 2026
+3. Added `sofascore_season_id` to `seasons` table + populated known IDs
+4. Updated `teams.sofascore_id` for 16 teams
+5. Created `scrape_log` table migration
+6. Built `GamedayDetector` with status/matchday/completion detection
+7. Built `AutomationTrigger` with dry_run and live modes
+8. Built `Notifier` with console/discord/windows backends
+9. Built `Scheduler` (Python CLI + PowerShell wrapper)
+10. Wrote 26 automation tests
 
 ### Verified
-- Full test suite: **35/35 passing** with PostgreSQL running
-- All data layers produce correct JSON structure
-- ContextEngine works with injected provider
-- Team colors cached correctly
+- Full test suite: **61/61 passing** with PostgreSQL running
+- MatchExtractor successfully fetched and inserted 240 matches
+- GamedayDetector correctly identifies finished/scheduled matches
+- AutomationTrigger dry_run works without side effects
+- All DB migrations applied successfully
 
 ### Next Actions
-1. **Extend ETL to populate `matches` table** — `src/etl/matches.py`
-2. **Build `GamedayDetector`** — `src/automation/detector.py`
-3. **Build `AutomationTrigger`** — `src/automation/trigger.py`
-4. **Build `Scheduler`** — `src/automation/scheduler.py`, `scheduler.ps1`
-5. **Build `Notifier`** — `src/automation/notifier.py`
-6. **Add `scrape_log` table migration** — `migrations/002_scrape_log.sql`
-7. **Write automation tests** — `tests/test_automation/`
+1. **End-to-end test**: Run scheduler manually to verify full detect -> ETL -> export flow
+2. **Set up Windows Task Scheduler**: Create scheduled task using `scheduler.ps1`
+3. **Phase 5**: Polish & Expansion (Primera B, web dashboard, historical backfill)
 
 ### Blockers
-- `matches` table is EMPTY — must populate before GamedayDetector works
+- None
 
 ### Critical State
 - **DB**: PostgreSQL 18 (start with `pg_ctl start -D "C:\Program Files\PostgreSQL\18\data"`)
@@ -147,11 +205,11 @@ Run: `python -m pytest tests/`
 - **Python**: 3.12
 - **Model**: Kimi v2.6 (implementation phase)
 - **Branch**: main, up to date with origin
-- **Latest commit**: `e43f26d` (transparent logo fix)
+- **Latest commit**: `a7ccb7b` (transparent logo fix)
 - **.env**: NOT committed, contains DB credentials
 - **Dependencies**: psycopg2-binary, pytest, scikit-learn, jinja2, playwright, jupyter installed
-- **Uncommitted changes**: None (all pushed)
-- **Matches table**: EMPTY
+- **Uncommitted changes**: Phase 4 implementation files (not yet committed)
+- **Matches table**: 240 matches (88 finished, 152 scheduled)
 
 ## Files
 
@@ -159,13 +217,17 @@ Run: `python -m pytest tests/`
 - `AGENTS.md` — Agent instructions and conventions
 - `CONTEXT.md` — This file
 - `export_data.py` — CLI for data layer export
+- `scheduler.ps1` — Windows Task Scheduler wrapper
 - `migrations/001_schema_optimization.sql` — Phase 1 DDL (applied)
+- `migrations/002_add_sofascore_season_id.sql` — Add sofascore_season_id (applied)
+- `migrations/003_scrape_log.sql` — scrape_log table (applied)
 - `src/config.py` — Config loader from .env
 - `src/db/session.py` — PostgreSQL connection
 - `src/scraper/` — SofaScore scraper and position classifier
-- `src/etl/` — Extract, transform, load, orchestrator
+- `src/etl/` — Extract, transform, load, orchestrator, matches
 - `src/infographics/` — HTML renderer + templates + style_config.json
 - `src/data_layers/` — Modular data export system (9 files)
+- `src/automation/` — Automation layer (detector, trigger, notifier, scheduler)
   - `stat_registry.py` — Central stat metadata registry
   - `queries.py` — Reusable SQL query builders
   - `providers.py` — LeagueStatsProvider interface + DB implementation

@@ -494,14 +494,14 @@ Start with console logging, extend to email/Discord later.
 |------|------|--------|-------|
 | 1 | Refactor: deduplicate queries, unify patterns | DONE | `src/data_layers/*.py` |
 | 2 | Refactor: simplify ContextEngine | DONE | `src/data_layers/context_engine.py` |
-| 3 | Write `MatchExtractor` + populate matches table | NEXT | `src/etl/matches.py` |
-| 4 | Build `GamedayDetector` | PENDING | `src/automation/detector.py` |
-| 5 | Build `AutomationTrigger` | PENDING | `src/automation/trigger.py` |
-| 6 | Build `Scheduler` (Task Scheduler integration) | PENDING | `src/automation/scheduler.py`, `scheduler.ps1` |
-| 7 | Build `Notifier` | PENDING | `src/automation/notifier.py` |
-| 8 | Add `scrape_log` table + migration | PENDING | `migrations/002_scrape_log.sql` |
-| 9 | Write tests for automation components | PENDING | `tests/test_automation/` |
-| 10 | End-to-end test: detect -> ETL -> export | PENDING | Full pipeline |
+| 3 | Write `MatchExtractor` + populate matches table | DONE | `src/etl/matches.py` |
+| 4 | Build `GamedayDetector` | DONE | `src/automation/detector.py` |
+| 5 | Build `AutomationTrigger` | DONE | `src/automation/trigger.py` |
+| 6 | Build `Scheduler` (Task Scheduler integration) | DONE | `src/automation/scheduler.py`, `scheduler.ps1` |
+| 7 | Build `Notifier` | DONE | `src/automation/notifier.py` |
+| 8 | Add `scrape_log` table + migration | DONE | `migrations/003_scrape_log.sql` |
+| 9 | Write tests for automation components | DONE | `tests/test_automation/` |
+| 10 | End-to-end test: detect -> ETL -> export | NEXT | Full pipeline |
 
 ---
 
@@ -525,5 +525,5 @@ Start with console logging, extend to email/Discord later.
 | 4 | Verify data in DB, validate completeness | DONE | DeepSeek V4 Pro |
 | 5 | Write infographic templates / data layers | DONE | Kimi v2.6 |
 | 5.5 | Code refactoring (pre-Phase 4) | DONE | Kimi v2.6 |
-| 6 | Write automation scheduler | NEXT | Kimi v2.6 |
-| 7 | End-to-end test: scrape -> ETL -> infographic | PENDING | DeepSeek V4 Pro |
+| 6 | Write automation scheduler | DONE | Kimi v2.6 |
+| 7 | End-to-end test: scrape -> ETL -> infographic | NEXT | DeepSeek V4 Pro |
