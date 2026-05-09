@@ -1,11 +1,23 @@
 """Scheduler for running automation cycles.
 
-Can be run directly or invoked via Windows Task Scheduler."""
+Can be run directly or invoked via Windows Task Scheduler.
+
+Usage from project root:
+    python -m src.automation.scheduler [--dry-run] [--season ID]
+
+Or directly (with proper PYTHONPATH):
+    python src/automation/scheduler.py [--dry-run]
+"""
 
 import argparse
 import logging
+import os
 import sys
-from datetime import datetime, timezone
+
+# Allow running directly from project root
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from src.automation.notifier import Notifier
 from src.automation.trigger import AutomationTrigger
