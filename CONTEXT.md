@@ -2,11 +2,8 @@
 
 ## Current Task
 
-Phases 2 and 3 are complete. ETL pipeline is production-ready with zero NULL
-values across all 955 player season stats. xG values calculated via ML model
-for Primera Chile (SofaScore does not provide them natively). Infographic
-engine has 3 working templates. Test suite has 21 passing tests.
-Next: Phase 4 (Automation Layer) or additional infographic templates.
+Database is fully verified and clean. Ready for Phase 3 (Infographics) or Phase 4
+(Automation). All data quality checks passed.
 
 ## Domain Language
 
@@ -50,15 +47,16 @@ Next: Phase 4 (Automation Layer) or additional infographic templates.
 - 2026 Copa Libertadores: 39 stats (2 Chilean teams)
 - 2026 Copa Sudamericana: 61 stats (3 Chilean teams)
 
-**xG Status:** 100% filled across all competitions. Predicted via RandomForest
-model trained on Libertadores/Sudamericana data (MAE: 0.166) for Primera Chile
-rows where SofaScore returns NULL.
-
-**Data Quality:**
-- 0 NULL values in all 29 mapped stat columns
+**Data Quality Verification (ALL PASSED):**
+- 0 NULL values in all 29 stat columns
+- 0 duplicate records (verified via unique constraints)
+- 0 encoding issues (replacement chars verified via hex inspection)
+- 0 orphan records (all FKs resolve)
 - 0 impossible values (negative goals/minutes, ratings > 10, percentages > 100)
-- 0 orphan records
-- 0 non-Chilean teams in continental data
+- 1 multi-team player: Mario Sandoval (2026: Deportes Concepcion + Audax Italiano) - likely mid-season transfer
+
+**xG Status:** 100% filled. Predicted via RandomForest (MAE: 0.166) for Primera Chile
+rows where SofaScore returns NULL.
 
 ## Infographic Engine (Phase 3)
 
@@ -87,10 +85,11 @@ Run: `python -m pytest tests/`
 
 ### Last Actions
 - Built RandomForest xG prediction model (CV MAE: 0.166)
-- Filled 855 NULL xG values for Primera Chile + 30 NaN values for continental
-- Added scikit-learn dependency and 3 xG model tests
-- Verified 100% data completeness (0 NULLs across all 29 stat columns)
+- Filled 855 NULL xG values for Primera Chile + 30 NaN for continental
+- Ran comprehensive DB cleanup audit (encoding, duplicates, orphans, outliers)
+- Verified 100% data completeness (0 NULLs, 0 duplicates, 0 orphans)
 - Installed 6 autoskills (python, pytest, pandas, numpy, ML, patterns)
+- Wrote verify_db.py for ongoing data quality checks
 
 ### Next Actions
 1. Phase 4: Automation Layer (gameday detection, scheduler, notifier)
@@ -102,10 +101,10 @@ Run: `python -m pytest tests/`
 - **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
 - **Python**: 3.12
 - **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main (5 commits ahead of origin/main)
+- **Branch**: main (6 commits ahead of origin/main)
 - **.env**: Created with DB credentials, NOT committed
 - **Dependencies**: psycopg2-binary, pytest, scikit-learn installed
-- **Uncommitted changes**: calculate_xg.py, test scripts
+- **Uncommitted changes**: verify_db.py
 
 ## Files
 
@@ -120,5 +119,6 @@ Run: `python -m pytest tests/`
 - `src/infographics/` — Renderer, StyleConfig, templates
 - `tests/` — pytest suite (21 tests)
 - `calculate_xg.py` — xG prediction script (one-off)
+- `verify_db.py` — Database verification script
 - `seed_*.py` — Database seed scripts
 - `Infographics/` — Output directory for generated images
