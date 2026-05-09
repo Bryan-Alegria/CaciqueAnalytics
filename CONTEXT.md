@@ -2,8 +2,11 @@
 
 ## Current Task
 
-Database is fully verified and clean. Ready for Phase 3 (Infographics) or Phase 4
-(Automation). All data quality checks passed.
+Phases 2 and 3 are complete. ETL pipeline is production-ready with zero NULL
+values across all 955 player season stats. Infographic templates now have proper
+filters (competition_id, min_minutes, team_id, position_group) and input validation.
+Database encoding issues fixed (UTF-8 double-encoding resolved).
+Next: Phase 4 (Automation Layer) or additional infographic templates.
 
 ## Domain Language
 
@@ -25,6 +28,7 @@ Database is fully verified and clean. Ready for Phase 3 (Infographics) or Phase 
 - **Automation**: Windows Task Scheduler (Phase 4)
 - **Testing**: pytest 9.0.3
 - **ML**: scikit-learn 1.8.0
+- **Skills**: 8 autoskills installed (python, pytest, pandas, numpy, scikit-learn, ML, patterns)
 
 ## Database Summary
 
@@ -60,24 +64,17 @@ rows where SofaScore returns NULL.
 
 ## Infographic Engine (Phase 3)
 
-| Template | Status |
-|----------|--------|
-| Player Card | DONE |
-| Top Scorers | DONE |
-| Player Comparison | DONE |
-| League Table | NOT STARTED |
-| Match Preview | NOT STARTED |
-| Match Report | NOT STARTED |
+| Template | Status | Filters |
+|----------|--------|---------|
+| Player Card | DONE | player_name, season, competition_id (default: Primera Chile) |
+| Top Scorers | DONE | season, competition_id, min_minutes (270), team_id, position_group, limit |
+| Player Comparison | DONE | player_a, player_b, season, competition_id |
+| League Table | NOT STARTED | - |
+| Match Preview | NOT STARTED | - |
+| Match Report | NOT STARTED | - |
 
 **Style system:** Dark theme, team colors for 14 clubs, 1080x1080 PNG output.
-
-**Known Filter Gaps (to fix before production):**
-1. TopScorers queries by `year` only, not `competition_id` — mixes Primera + continental stats
-2. PlayerCard uses `LIMIT 1` arbitrarily — ambiguous when player is in multiple competitions
-3. No `min_minutes` threshold — includes players with < 200 minutes
-4. No `position_group` filter — can't do "top defenders by tackles"
-5. No `team_id` filter — can't do "top scorers for Colo-Colo"
-6. No input validation — non-existent players raise ValueError
+Logo added to README and template footers.
 
 ## Test Suite
 
@@ -96,8 +93,11 @@ Run: `python -m pytest tests/`
 - Filled 855 NULL xG values for Primera Chile + 30 NaN for continental
 - Ran comprehensive DB cleanup audit (encoding, duplicates, orphans, outliers)
 - Fixed double-encoded UTF-8 in competition and team names (e.g., `Primera DivisiÃ³n` -> `Primera División`)
+- Added filters to all infographic templates: competition_id, min_minutes, team_id, position_group
+- Added input validation with clear error messages to all templates
+- Added CaciqueAnalytics logo to README and template footers
 - Verified 100% data completeness (0 NULLs, 0 duplicates, 0 orphans, correct encoding)
-- Installed 6 autoskills (python, pytest, pandas, numpy, ML, patterns)
+- Installed 8 autoskills (python, pytest, pandas, numpy, scikit-learn, ML, patterns)
 - Wrote verify_db.py for ongoing data quality checks
 
 ### Next Actions
@@ -110,10 +110,10 @@ Run: `python -m pytest tests/`
 - **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
 - **Python**: 3.12
 - **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main (8 commits ahead of origin/main)
+- **Branch**: main (10 commits ahead of origin/main)
 - **.env**: Created with DB credentials, NOT committed
 - **Dependencies**: psycopg2-binary, pytest, scikit-learn installed
-- **Uncommitted changes**: verify_db.py
+- **Uncommitted changes**: None
 
 ## Files
 
