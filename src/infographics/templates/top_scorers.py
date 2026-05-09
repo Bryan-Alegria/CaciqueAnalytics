@@ -17,10 +17,32 @@ class TopScorers(BaseTemplate):
 
     def query(self, params: dict[str, Any]) -> pd.DataFrame:
         season_year = params.get("season", 2026)
+        competition_id = params.get("competition_id", 1)  # Default to Primera Chile
         limit = params.get("limit", 10)
+        min_minutes = params.get("min_minutes", 270)  # 3 full matches minimum
+        team_id = params.get("team_id")  # Optional: filter by specific team
+        position_group = params.get("position_group")  # Optional: Goalkeepers, Defenders, Midfielders, Forwards
 
         conn = get_connection()
-        query = """
+
+        # Build query dynamically
+        where_clauses = [
+            "s.year = %s",
+            "s.competition_id = %s",
+            "pss.minutes_played >= %s",
+            "pss.goals IS NOT NULL"
+        ]
+        query_params = [season_year, competition_id, min_minutes]
+
+        if team_id is not None:
+            where_clauses.append("t.id = %s")
+            query_params.append(team_id)
+
+        if position_group is not None:
+            where_clauses.append("pg.name = %s")
+            query_params.append(position_group)
+
+        query = f"""
             SELECT
                 p.full_name AS player,
                 t.name AS team,
@@ -32,17 +54,21 @@ class TopScorers(BaseTemplate):
             JOIN players p ON p.id = pss.player_id
             JOIN teams t ON t.id = pss.team_id
             JOIN seasons s ON s.id = pss.season_id
-            WHERE s.year = %s AND pss.goals IS NOT NULL
+            LEFT JOIN player_team_seasons pts ON pts.player_id = p.id AND pts.season_id = s.id AND pts.team_id = t.id
+            LEFT JOIN positions pg ON pg.id = pts.position_id
+            WHERE {" AND ".join(where_clauses)}
             ORDER BY pss.goals DESC
             LIMIT %s
         """
-        df = pd.read_sql(query, conn, params=(season_year, limit))
+        query_params.append(limit)
+
+        df = pd.read_sql(query, conn, params=tuple(query_params))
         conn.close()
         return df
 
     def plot(self, data: pd.DataFrame) -> plt.Figure:
         if data.empty:
-            raise ValueError("No data found for top scorers")
+            raise ValueError("No data found for top scorers. Check filters (season, competition, min_minutes, team_id).")
 
         colors = self.style.colors
         fonts = self.style.fonts
@@ -136,7 +162,8 @@ class TopScorers(BaseTemplate):
             if i < len(data) - 1:
                 ax.plot([40, 1040], [y - row_h / 2, y - row_h / 2], color=colors["grid"], linewidth=1, alpha=0.5)
 
-        # Footer
+        # Footer with logo
+        self._draw_logo(ax, x=60, y=30)
         ax.text(
             540, 30,
             "CaciqueAnalytics | Data via SofaScore",
@@ -150,4 +177,12 @@ class TopScorers(BaseTemplate):
 
     def _filename(self, params: dict[str, Any]) -> str:
         season = params.get("season", "2026")
-        return f"top_scorers_{season}.png"
+        comp = params.get("competition_id", 1)
+        team = params.get("team_id", "")
+        pos = params.get("position_group", "")
+        suffix = f"c{comp}"
+        if team:
+            suffix += f"_t{team}"
+        if pos:
+            suffix += f"_{pos.lower()}"
+        return f"top_scorers_{season}_{suffix}.png"

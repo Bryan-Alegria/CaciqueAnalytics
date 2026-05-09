@@ -45,14 +45,29 @@ class PlayerComparison(BaseTemplate):
             JOIN teams t ON t.id = pss.team_id
             JOIN seasons s ON s.id = pss.season_id
             WHERE p.full_name = ANY(%s) AND s.year = %s AND s.competition_id = %s
+            ORDER BY pss.minutes_played DESC
         """
         df = pd.read_sql(query, conn, params=([player_a, player_b], season_year, competition_id))
         conn.close()
+
+        # Validate: must have exactly 2 unique players
+        if len(df) == 0:
+            raise ValueError(f"No data found for either player. Check player names, season, and competition_id.")
+        
+        unique_players = df["player"].unique()
+        if len(unique_players) < 2:
+            found = unique_players[0] if len(unique_players) > 0 else "none"
+            missing = player_a if found == player_b else player_b
+            raise ValueError(f"Player '{missing}' not found. Only found '{found}'.")
+        
+        # Deduplicate: if a player has multiple team records for same competition, pick the one with most minutes
+        df = df.sort_values("minutes_played", ascending=False).drop_duplicates(subset=["player"], keep="first")
+        
         return df
 
     def plot(self, data: pd.DataFrame) -> plt.Figure:
         if len(data) != 2:
-            raise ValueError(f"Need exactly 2 players for comparison, got {len(data)}")
+            raise ValueError(f"Need exactly 2 players for comparison, got {len(data['player'].unique())}")
 
         colors = self.style.colors
         fonts = self.style.fonts
@@ -199,7 +214,8 @@ class PlayerComparison(BaseTemplate):
             if i < len(stats) - 1:
                 ax.plot([40, 1040], [y - row_h / 2, y - row_h / 2], color=colors["grid"], linewidth=1, alpha=0.5)
 
-        # Footer
+        # Footer with logo
+        self._draw_logo(ax, x=60, y=30)
         ax.text(
             540, 30,
             "CaciqueAnalytics | Data via SofaScore",
@@ -215,4 +231,5 @@ class PlayerComparison(BaseTemplate):
         a = params["player_a"].replace(" ", "_")
         b = params["player_b"].replace(" ", "_")
         season = params.get("season", "2026")
-        return f"player_comparison_{a}_vs_{b}_{season}.png"
+        comp = params.get("competition_id", 1)
+        return f"player_comparison_{a}_vs_{b}_s{season}_c{comp}.png"

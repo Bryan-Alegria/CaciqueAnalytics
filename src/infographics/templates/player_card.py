@@ -19,6 +19,7 @@ class PlayerCard(BaseTemplate):
     def query(self, params: dict[str, Any]) -> pd.DataFrame:
         player_name = params["player_name"]
         season_year = params.get("season", 2026)
+        competition_id = params.get("competition_id", 1)  # Default to Primera Chile
 
         conn = get_connection()
         query = """
@@ -43,16 +44,17 @@ class PlayerCard(BaseTemplate):
             JOIN players p ON p.id = pss.player_id
             JOIN teams t ON t.id = pss.team_id
             JOIN seasons s ON s.id = pss.season_id
-            WHERE p.full_name = %s AND s.year = %s
+            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
+            ORDER BY pss.minutes_played DESC
             LIMIT 1
         """
-        df = pd.read_sql(query, conn, params=(player_name, season_year))
+        df = pd.read_sql(query, conn, params=(player_name, season_year, competition_id))
         conn.close()
         return df
 
     def plot(self, data: pd.DataFrame) -> plt.Figure:
         if data.empty:
-            raise ValueError("No data found for player card")
+            raise ValueError("No data found for player card. Check player_name, season, and competition_id.")
 
         row = data.iloc[0]
         colors = self.style.colors
@@ -112,7 +114,6 @@ class PlayerCard(BaseTemplate):
         ]
 
         cols = 3
-        rows = 4
         start_y = 850
         cell_w = 1080 / cols
         cell_h = 180
@@ -153,7 +154,8 @@ class PlayerCard(BaseTemplate):
                 fontfamily=fonts["stat"]["family"],
             )
 
-        # Footer
+        # Footer with logo
+        self._draw_logo(ax, x=60, y=30)
         ax.text(
             540, 30,
             "CaciqueAnalytics | Data via SofaScore",
@@ -168,4 +170,5 @@ class PlayerCard(BaseTemplate):
     def _filename(self, params: dict[str, Any]) -> str:
         player = params["player_name"].replace(" ", "_")
         season = params.get("season", "2026")
-        return f"player_card_{player}_{season}.png"
+        comp = params.get("competition_id", 1)
+        return f"player_card_{player}_s{season}_c{comp}.png"

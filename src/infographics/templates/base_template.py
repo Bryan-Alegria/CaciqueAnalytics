@@ -41,6 +41,17 @@ class BaseTemplate(ABC):
         path = OUTPUT_DIR / filename
         return self.renderer.save(fig, path)
 
+    def _draw_logo(self, ax: plt.Axes, x: float = 60, y: float = 30, size: float = 40) -> None:
+        """Draw CaciqueAnalytics logo placeholder text."""
+        ax.text(
+            x, y, "CA",
+            fontsize=14,
+            fontweight="bold",
+            color=self.style.colors["accent"],
+            ha="center", va="center",
+            bbox=dict(boxstyle="circle,pad=0.3", facecolor=self.style.colors["surface"], edgecolor="none"),
+        )
+
     def _filename(self, params: dict[str, Any]) -> str:
         season = params.get("season", "2026")
         matchday = params.get("matchday", "")

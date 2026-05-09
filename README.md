@@ -1,5 +1,9 @@
 # CaciqueAnalytics
 
+<p align="center">
+  <img src="Infographics/Logo%20con%20Tipograf%C3%ADa%20HD%20Arreglado.png" alt="CaciqueAnalytics Logo" width="400"/>
+</p>
+
 Automated data pipeline for Chilean football analytics. Scrapes match and player
 statistics, loads them into PostgreSQL, and generates infographics for social
 media posting.
