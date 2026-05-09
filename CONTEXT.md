@@ -2,17 +2,7 @@
 
 ## Current Task
 
-Code Refactoring (pre-Phase 4) is COMPLETE. All 5 candidates implemented. Phase 4 (Automation Layer) is next.
-
-## Refactoring Status
-
-| Candidate | Status | Files |
-|-----------|--------|-------|
-| 1. Stat Registry | COMPLETE | `src/data_layers/stat_registry.py` |
-| 2. Plain Text Lookup | COMPLETE | `src/data_layers/context_engine.py` |
-| 3. Query Seam | COMPLETE | `src/data_layers/queries.py` |
-| 4. Colors Cache | COMPLETE | `src/data_layers/colors.py` |
-| 5. Decouple ContextEngine | COMPLETE | `src/data_layers/providers.py`, `context_engine.py` |
+Code Refactoring (pre-Phase 4) is COMPLETE. All 5 deepening candidates implemented. Ready to begin Phase 4: Automation Layer.
 
 ## Domain Language
 
@@ -28,13 +18,13 @@ Code Refactoring (pre-Phase 4) is COMPLETE. All 5 candidates implemented. Phase 
 ## Tech Stack
 
 - **Language**: Python 3.12
-- **Database**: PostgreSQL 18 (local, manual start)
+- **Database**: PostgreSQL 18 (local, manual start via pg_ctl)
 - **DB name**: cacique_analytics
 - **Scraping**: LanusStats + direct SofaScore API
 - **Data Export**: Modular layers with ContextEngine (percentiles + plain text)
 - **HTML Renderer**: Playwright + Jinja2 (optional, for auto-generated infographics)
 - **Automation**: Windows Task Scheduler (Phase 4)
-- **Testing**: pytest 9.0.3 (21 tests)
+- **Testing**: pytest 9.0.3 (35 tests)
 - **ML**: scikit-learn 1.8.0 (RandomForest xG predictor)
 
 ## Database Summary
@@ -100,67 +90,68 @@ Tiers: Elite (>95%), Destacado (>85%), Por Encima del Promedio (>70%), Promedio 
 
 ## Test Suite
 
-21 passing tests:
+35 passing tests:
 - ETL transform: 5 tests
 - xG model: 3 tests
-- Scraper: 6 tests
+- Scraper: 7 tests
 - Infographics engine: 7 tests
+- Data layers regression: 14 tests
 
 Run: `python -m pytest tests/`
 
+## Refactoring Status (COMPLETE)
+
+| Candidate | Status | Files |
+|-----------|--------|-------|
+| 1. Stat Registry | COMPLETE | `src/data_layers/stat_registry.py` |
+| 2. Plain Text Lookup | COMPLETE | `src/data_layers/context_engine.py` |
+| 3. Query Seam | COMPLETE | `src/data_layers/queries.py` |
+| 4. Colors Cache | COMPLETE | `src/data_layers/colors.py` |
+| 5. Decouple ContextEngine | COMPLETE | `src/data_layers/providers.py`, `context_engine.py` |
+
 ## Handover Summary
 
-### Last Actions (Session 2026-05-09)
-- Built modular `data_layers` package (7 files):
-  - `base.py`: Database connectivity
-  - `context_engine.py`: Percentiles, league averages, plain-text descriptions (Spanish)
-  - `player_layer.py`: Single player data export
-  - `comparison_layer.py`: H2H comparison with winner tracking
-  - `leaderboard_layer.py`: Top scorers, assists, rating, xG, etc.
-  - `colors.py`: Team color lookup from style_config.json
-- Built `export_data.py` CLI with Spanish commands: `jugador`, `comparar`, `tabla`
-- Built HTML renderer (`html_renderer.py`) with Playwright + Jinja2
-- Created `player_card.html` template with B/R Football CSS design system
-- Fixed all schema issues (position LEFT JOIN, team colors external lookup)
-- Added Decimal-to-float JSON serialization
-- Updated README with new features, data coverage, project structure
-- Added project favicon
-- Updated .gitignore for generated outputs
-- All 21 tests passing
-- Committed and pushed: `8042ec0` (14 files, 1,816 insertions)
+### Current Task
+- Building Phase 4: Automation Layer (GamedayDetector, Scheduler, Trigger, Notifier)
+- PLAN.md Phase 4 section is the active roadmap
+- No files currently in progress (ready to start `src/automation/`)
 
-### Last Actions (Session 2026-05-10 — Refactoring)
-- **Candidate 1 (Stat Registry)**: Created `src/data_layers/stat_registry.py` with `StatDefinition` dataclass. All stat metadata centralized in one registry.
-- **Candidate 2 (Plain Text Lookup)**: Refactored `context_engine.py` — removed 30-line `if/elif` chain. Replaced with `stat_registry.plain_text()` using rule tuples.
-- **Candidate 3 (Query Seam)**: Created `src/data_layers/queries.py` with `player_season_base()` and `player_identity_base()`. Eliminated 5 duplicate JOIN blocks.
-- **Candidate 4 (Colors Cache)**: Added `@lru_cache(maxsize=1)` to `colors.py`. Config loaded once, not per call.
-- **Candidate 5 (Decouple ContextEngine)**: Created `src/data_layers/providers.py` with `LeagueStatsProvider` protocol and `DbLeagueStatsProvider`. ContextEngine no longer inherits BaseDataLayer — receives injected provider. Added `close()` delegation in layers.
-- **Repo Cleanup**: Removed 10 unused files (5 root test files + 5 seed scripts). Cleaned `__pycache__`, `.pytest_cache`, and Python 3.14 cache files.
-- **Tests**: Added `tests/test_data_layers/test_regression.py` with 14 tests. Full suite: 31 passing, 4 pre-existing failures (PostgreSQL off).
+### Last Actions
+1. Implemented all 5 architecture refactoring candidates (stat registry, query seam, provider injection, plain text lookup, colors cache)
+2. Added 14 regression tests in `tests/test_data_layers/test_regression.py`
+3. Cleaned repo: removed 10 unused files, cleared `__pycache__` and `.pytest_cache`
+4. Rewrote README.md with professional usage documentation
+5. Committed and pushed: `f56ebd5` (refactoring) + `e43f26d` (transparent logo fix)
+
+### Verified
+- Full test suite: **35/35 passing** with PostgreSQL running
+- All data layers produce correct JSON structure
+- ContextEngine works with injected provider
+- Team colors cached correctly
 
 ### Next Actions
-1. **Phase 4: Automation Layer**
-   - Extend ETL to populate `matches` table (currently empty)
-   - Build `GamedayDetector`: monitor matches for status changes (scheduled -> live -> finished)
-   - Build `Scheduler`: Windows Task Scheduler integration
-   - Build `Trigger`: auto-run ETL when all matches in a matchday finish
-   - Build `Notifier`: alert when data is ready (console/email/TBD)
-   - Add `scrape_log` table for audit trail
+1. **Extend ETL to populate `matches` table** — `src/etl/matches.py`
+2. **Build `GamedayDetector`** — `src/automation/detector.py`
+3. **Build `AutomationTrigger`** — `src/automation/trigger.py`
+4. **Build `Scheduler`** — `src/automation/scheduler.py`, `scheduler.ps1`
+5. **Build `Notifier`** — `src/automation/notifier.py`
+6. **Add `scrape_log` table migration** — `migrations/002_scrape_log.sql`
+7. **Write automation tests** — `tests/test_automation/`
 
-2. **Tests**
-   - Write tests for automation components
-   - Verify full pipeline: scrape -> ETL -> data export
+### Blockers
+- `matches` table is EMPTY — must populate before GamedayDetector works
 
 ### Critical State
-- **DB**: PostgreSQL 18 STOPPED, cacique_analytics, .env has credentials
+- **DB**: PostgreSQL 18 (start with `pg_ctl start -D "C:\Program Files\PostgreSQL\18\data"`)
+- **DB name**: cacique_analytics
 - **Python**: 3.12
-- **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main, uncommitted refactoring changes ready for commit
-- **.env**: Created with DB credentials, NOT committed
+- **Model**: Kimi v2.6 (implementation phase)
+- **Branch**: main, up to date with origin
+- **Latest commit**: `e43f26d` (transparent logo fix)
+- **.env**: NOT committed, contains DB credentials
 - **Dependencies**: psycopg2-binary, pytest, scikit-learn, jinja2, playwright, jupyter installed
-- **Uncommitted changes**: See git status — new files, modified files, deleted unused files
-- **Matches table**: EMPTY — needs fixture extraction before automation works
-- **Test suite**: 31 passing, 4 pre-existing failures (PostgreSQL off)
+- **Uncommitted changes**: None (all pushed)
+- **Matches table**: EMPTY
 
 ## Files
 
@@ -178,7 +169,13 @@ Run: `python -m pytest tests/`
   - `stat_registry.py` — Central stat metadata registry
   - `queries.py` — Reusable SQL query builders
   - `providers.py` — LeagueStatsProvider interface + DB implementation
-- `tests/` — pytest suite (35 tests: 21 original + 14 new regression)
+  - `context_engine.py` — Percentiles + plain text
+  - `player_layer.py` — Single player export
+  - `comparison_layer.py` — H2H comparison
+  - `leaderboard_layer.py` — Top lists
+  - `colors.py` — Team color lookup (cached)
+  - `base.py` — Database connectivity base
+- `tests/` — pytest suite (35 tests)
 - `calculate_xg.py` — xG prediction script (one-off)
 - `verify_db.py` — Database verification script
 - `Infographics/` — Output directory (gitignored)

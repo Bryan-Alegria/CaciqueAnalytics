@@ -368,25 +368,25 @@ Playwright + Jinja2 for auto-generated PNGs:
 
 ### 3.6 Status
 
-- Data layers: COMPLETE (7 files in `src/data_layers/`)
-- Context engine: COMPLETE (percentiles + plain text in Spanish)
+- Data layers: COMPLETE (9 files in `src/data_layers/`)
+- Context engine: COMPLETE (percentiles + plain text in Spanish, decoupled from BaseDataLayer)
 - Export CLI: COMPLETE (3 commands)
 - HTML renderer: COMPLETE (Playwright + Jinja2)
-- Tests: 21 passing
+- Tests: 35 passing (21 original + 14 regression)
 
 ---
 
 ## Phase 4: Automation Layer (IN PROGRESS)
 
-### Pre-requisite: Code Refactoring
+### Pre-requisite: Code Refactoring (COMPLETE)
 
-Before building automation, audit and clean the codebase:
+All 5 candidates implemented:
 
-1. **Deduplicate queries**: Unify `SELECT` patterns across `player_layer.py`, `comparison_layer.py`, `leaderboard_layer.py`
-2. **Extract shared constants**: Stat column lists, key stat definitions, format strings
-3. **Simplify ContextEngine**: `_plain_text()` has too many conditionals — refactor with a lookup table
-4. **Add missing type hints**: All public methods should have complete annotations
-5. **Consolidate DB access**: `BaseDataLayer` vs raw `get_connection()` calls — pick one pattern
+1. **Deduplicate queries** — `src/data_layers/queries.py` with reusable `player_season_base()` and `player_identity_base()`
+2. **Extract shared constants** — `src/data_layers/stat_registry.py` with `StatDefinition` dataclass
+3. **Simplify ContextEngine** — `_plain_text()` replaced with `stat_registry.plain_text()` lookup
+4. **Add missing type hints** — All public methods annotated
+5. **Consolidate DB access** — ContextEngine decoupled from BaseDataLayer via `LeagueStatsProvider` protocol
 
 ### 4.1 Match Data Population
 
@@ -488,20 +488,20 @@ Start with console logging, extend to email/Discord later.
 4. User designs infographics in Canvas using exported JSON
 5. User posts manually to X
 
-### 4.7 Tomorrow's Execution Order
+### 4.7 Execution Order
 
-| Step | Task | Files |
-|------|------|-------|
-| 1 | Refactor: deduplicate queries, unify patterns | `src/data_layers/*.py` |
-| 2 | Refactor: simplify ContextEngine | `src/data_layers/context_engine.py` |
-| 3 | Write `MatchExtractor` + populate matches table | `src/etl/matches.py` |
-| 4 | Build `GamedayDetector` | `src/automation/detector.py` |
-| 5 | Build `AutomationTrigger` | `src/automation/trigger.py` |
-| 6 | Build `Scheduler` (Task Scheduler integration) | `src/automation/scheduler.py`, `scheduler.ps1` |
-| 7 | Build `Notifier` | `src/automation/notifier.py` |
-| 8 | Add `scrape_log` table + migration | `migrations/` |
-| 9 | Write tests for automation components | `tests/test_automation/` |
-| 10 | End-to-end test: detect -> ETL -> export | Full pipeline |
+| Step | Task | Status | Files |
+|------|------|--------|-------|
+| 1 | Refactor: deduplicate queries, unify patterns | DONE | `src/data_layers/*.py` |
+| 2 | Refactor: simplify ContextEngine | DONE | `src/data_layers/context_engine.py` |
+| 3 | Write `MatchExtractor` + populate matches table | NEXT | `src/etl/matches.py` |
+| 4 | Build `GamedayDetector` | PENDING | `src/automation/detector.py` |
+| 5 | Build `AutomationTrigger` | PENDING | `src/automation/trigger.py` |
+| 6 | Build `Scheduler` (Task Scheduler integration) | PENDING | `src/automation/scheduler.py`, `scheduler.ps1` |
+| 7 | Build `Notifier` | PENDING | `src/automation/notifier.py` |
+| 8 | Add `scrape_log` table + migration | PENDING | `migrations/002_scrape_log.sql` |
+| 9 | Write tests for automation components | PENDING | `tests/test_automation/` |
+| 10 | End-to-end test: detect -> ETL -> export | PENDING | Full pipeline |
 
 ---
 
@@ -517,12 +517,13 @@ Start with console logging, extend to email/Discord later.
 
 ## Execution Order
 
-| Step | What | Model |
-|------|------|-------|
-| 1 | Run DB migration SQL (Phase 1) | Kimi v2.6 |
-| 2 | Write `sofascore_client.py` + test scrape | Kimi v2.6 |
-| 3 | Write ETL orchestrator + first load to DB | Kimi v2.6 |
-| 4 | Verify data in DB, validate completeness | DeepSeek V4 Pro |
-| 5 | Write infographic templates (one by one) | Kimi v2.6 |
-| 6 | Write automation scheduler | Kimi v2.6 |
-| 7 | End-to-end test: scrape -> ETL -> infographic | DeepSeek V4 Pro |
+| Step | What | Status | Model |
+|------|------|--------|-------|
+| 1 | Run DB migration SQL (Phase 1) | DONE | Kimi v2.6 |
+| 2 | Write `sofascore_client.py` + test scrape | DONE | Kimi v2.6 |
+| 3 | Write ETL orchestrator + first load to DB | DONE | Kimi v2.6 |
+| 4 | Verify data in DB, validate completeness | DONE | DeepSeek V4 Pro |
+| 5 | Write infographic templates / data layers | DONE | Kimi v2.6 |
+| 5.5 | Code refactoring (pre-Phase 4) | DONE | Kimi v2.6 |
+| 6 | Write automation scheduler | NEXT | Kimi v2.6 |
+| 7 | End-to-end test: scrape -> ETL -> infographic | PENDING | DeepSeek V4 Pro |
