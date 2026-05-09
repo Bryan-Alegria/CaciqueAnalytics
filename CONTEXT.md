@@ -2,9 +2,10 @@
 
 ## Current Task
 
-Implementing Phase 2: Core ETL Pipeline from PLAN.md.
-Database seeded with teams, players, season, and player_season_stats for 2026.
-Next: seed nationalities, add Copa Libertadores/Sudamericana data, then move to infographics.
+Phases 2 and 3 are complete. All handover items from the previous session are done.
+Database seeded with multi-season, multi-competition data. Infographic engine has
+3 working templates. Test suite has 18 passing tests.
+Next: Phase 4 (Automation Layer) or additional infographic templates.
 
 ## Domain Language
 
@@ -24,51 +25,80 @@ Next: seed nationalities, add Copa Libertadores/Sudamericana data, then move to 
 - **Scraping**: LanusStats v2.1.6 + direct SofaScore API
 - **Visualization**: matplotlib + seaborn
 - **Automation**: Windows Task Scheduler
+- **Testing**: pytest 9.0.3
 
 ## Database Summary
 
-16 tables. 4 competitions seeded (Primera Chile=1, Copa Chile=2, Libertadores=3,
-Sudamericana=4). 19 positions seeded. Schema migration applied (all 53 SofaScore
-fields mapped). New tables: match_team_stats, standings, scrape_log, infographics_log.
+16 tables. 4 competitions seeded. 19 positions seeded. Schema migration applied.
 
-## Data Status (2026 Primera Chile)
+## Data Status
 
 | Table | Count |
 |-------|------:|
-| teams | 16 |
-| players | 391 |
-| seasons | 1 (2026, id=1, is_current=true) |
-| player_team_seasons | 391 |
-| player_season_stats | **392** |
+| teams | 18 (+2 from 2025: Deportes Iquique, Union Espanola) |
+| players | 587 |
+| nationalities | 13 |
+| seasons | 4 |
+| player_team_seasons | 953 |
+| player_season_stats | 955 |
 
-Top scorer: 11 goals (player_id=309). Data quality verified: zero missing values.
+**Coverage:**
+- 2025 Primera Chile: 463 stats
+- 2026 Primera Chile: 392 stats
+- 2026 Copa Libertadores: 39 stats (Chilean teams only)
+- 2026 Copa Sudamericana: 61 stats (Chilean teams only)
+
+Top scorer 2026: Fernando Zampedri (11 goals, Universidad Catolica).
+
+## Infographic Engine (Phase 3)
+
+| Template | Status |
+|----------|--------|
+| Player Card | DONE |
+| Top Scorers | DONE |
+| Player Comparison | DONE |
+| League Table | NOT STARTED (needs standings data) |
+| Match Preview | NOT STARTED |
+| Match Report | NOT STARTED |
+
+**Style system:** Dark theme (`#16213e` background, `#e94560` accent), team colors
+mapped for 14 Chilean clubs. Output: 1080x1080 PNG to `Infographics/`.
+
+## Test Suite
+
+18 passing tests:
+- `tests/test_etl/test_transform.py` — 5 tests
+- `tests/test_scraper/test_scraper.py` — 6 tests
+- `tests/test_infographics/test_engine.py` — 7 tests
+
+Run: `python -m pytest tests/`
 
 ## Handover Summary
 
 ### Last Actions
-- Added unique constraints to teams.name and players.full_name (for idempotent upserts)
-- Created seed_teams_players.py: seeded 16 teams, 391 players, 1 season, 391 links
-- Created populate_stats.py: loaded 392 player_season_stats records via ETL
-- Added .env file (NOT committed, .gitignore protects it)
-- Added .gitignore for Python artifacts
+- Seeded 13 nationalities lookup values
+- Loaded Copa Libertadores 2026 (39 players, 2 Chilean teams)
+- Loaded Copa Sudamericana 2026 (61 players, 3 Chilean teams)
+- Loaded 2025 Primera Chile (463 players, 16 teams)
+- Built infographic engine: StyleConfig, Renderer, BaseTemplate
+- Created 3 infographic templates: PlayerCard, TopScorers, PlayerComparison
+- Wrote 18 pytest tests for scraper, ETL, and infographics
+- Committed all changes (3 commits since last push)
 
 ### Next Actions
-1. Seed nationalities lookup table (currently empty)
-2. Scrape and load Copa Libertadores 2026 data (Chilean teams only)
-3. Scrape and load Copa Sudamericana 2026 data (Chilean teams only)
-4. Scrape 2025 season for comparison data
-5. Move to Phase 3: Infographic Engine (player cards, match reports, league table)
-6. Write tests for scraper and ETL modules
+1. Phase 4: Automation Layer (gameday detection, scheduler, notifier)
+2. Add League Table template (requires standings data or computed from matches)
+3. Scrape match-level data for match previews and reports
+4. Backfill historical seasons (2021-2024)
 
 ### Critical State
 - **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
 - **Python**: 3.12 at C:\Users\PC\AppData\Local\Programs\Python\Python312\python.exe
 - **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main (clean, pushed to origin)
-- **Open files**: src/scraper/sofascore_client.py, src/etl/*.py, seed_teams_players.py, populate_stats.py
+- **Branch**: main (3 commits ahead of origin/main)
 - **.env**: Created with DB credentials, NOT committed (protected by .gitignore)
-- **Dependencies**: psycopg2-binary installed
-- **No uncommitted changes**
+- **Dependencies**: psycopg2-binary, pytest installed
+- **Uncommitted changes**: None
 
 ## Files
 
@@ -76,18 +106,12 @@ Top scorer: 11 goals (player_id=309). Data quality verified: zero missing values
 - `AGENTS.md` — Agent instructions and conventions
 - `CONTEXT.md` — This file (domain language and handover state)
 - `migrations/001_schema_optimization.sql` — Phase 1 DDL (applied)
-- `opencode.json` — OpenCode plugin config (superpowers)
-- `requirements.txt` — Project dependencies
 - `src/config.py` — Config loader from .env
 - `src/db/session.py` — PostgreSQL connection
-- `src/scraper/sofascore_client.py` — SofaScore scraper
-- `src/scraper/position_classifier.py` — Position mapping
-- `src/etl/extract.py` — Data extraction
-- `src/etl/transform.py` — Data transformation
-- `src/etl/load.py` — DB upsert loading
-- `src/etl/orchestrator.py` — ETL pipeline runner
-- `seed_teams_players.py` — One-off seed script
-- `populate_stats.py` — One-off stats population script
-- `test_scraper.py` — Scraper verification script
-- `test_data_quality.py` — Data quality analysis script
+- `src/scraper/` — SofaScore scraper and position classifier
+- `src/etl/` — Extract, transform, load, orchestrator
+- `src/infographics/` — Renderer, StyleConfig, templates
+- `tests/` — pytest suite (scraper, etl, infographics)
+- `seed_*.py` — One-off database seed scripts
+- `test_*.py` — One-off verification scripts
 - `Infographics/` — Output directory for generated images
