@@ -50,7 +50,7 @@ Database is fully verified and clean. Ready for Phase 3 (Infographics) or Phase 
 **Data Quality Verification (ALL PASSED):**
 - 0 NULL values in all 29 stat columns
 - 0 duplicate records (verified via unique constraints)
-- 0 encoding issues (replacement chars verified via hex inspection)
+- 0 encoding issues (fixed double-encoded UTF-8: `Ã³` -> `ó`, `Ã±` -> `ñ`, etc.)
 - 0 orphan records (all FKs resolve)
 - 0 impossible values (negative goals/minutes, ratings > 10, percentages > 100)
 - 1 multi-team player: Mario Sandoval (2026: Deportes Concepcion + Audax Italiano) - likely mid-season transfer
@@ -71,6 +71,14 @@ rows where SofaScore returns NULL.
 
 **Style system:** Dark theme, team colors for 14 clubs, 1080x1080 PNG output.
 
+**Known Filter Gaps (to fix before production):**
+1. TopScorers queries by `year` only, not `competition_id` — mixes Primera + continental stats
+2. PlayerCard uses `LIMIT 1` arbitrarily — ambiguous when player is in multiple competitions
+3. No `min_minutes` threshold — includes players with < 200 minutes
+4. No `position_group` filter — can't do "top defenders by tackles"
+5. No `team_id` filter — can't do "top scorers for Colo-Colo"
+6. No input validation — non-existent players raise ValueError
+
 ## Test Suite
 
 21 passing tests:
@@ -87,7 +95,8 @@ Run: `python -m pytest tests/`
 - Built RandomForest xG prediction model (CV MAE: 0.166)
 - Filled 855 NULL xG values for Primera Chile + 30 NaN for continental
 - Ran comprehensive DB cleanup audit (encoding, duplicates, orphans, outliers)
-- Verified 100% data completeness (0 NULLs, 0 duplicates, 0 orphans)
+- Fixed double-encoded UTF-8 in competition and team names (e.g., `Primera DivisiÃ³n` -> `Primera División`)
+- Verified 100% data completeness (0 NULLs, 0 duplicates, 0 orphans, correct encoding)
 - Installed 6 autoskills (python, pytest, pandas, numpy, ML, patterns)
 - Wrote verify_db.py for ongoing data quality checks
 
@@ -101,7 +110,7 @@ Run: `python -m pytest tests/`
 - **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
 - **Python**: 3.12
 - **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main (6 commits ahead of origin/main)
+- **Branch**: main (8 commits ahead of origin/main)
 - **.env**: Created with DB credentials, NOT committed
 - **Dependencies**: psycopg2-binary, pytest, scikit-learn installed
 - **Uncommitted changes**: verify_db.py
