@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src.data_layers import PlayerDataLayer, ComparisonDataLayer, LeaderboardDataLayer
+from src.ml.similarity import SimilarityEngine
 
 
 def _convertir_decimales(obj):
@@ -76,6 +77,40 @@ def exportar_tabla(season: int, competition: int) -> str:
     return str(path)
 
 
+def exportar_similares(player_name: str, season: int, competition: int, top_n: int = 5) -> str:
+    """Exporta jugadores similares usando el motor de similitud."""
+    engine = SimilarityEngine(season, competition)
+    similar = engine.find_similar(player_name, top_n=top_n)
+
+    data = {
+        "jugador_objetivo": player_name,
+        "temporada": season,
+        "competicion": competition,
+        "total_jugadores_index": engine.player_count,
+        "jugadores_similares": [
+            {
+                "nombre": p.name,
+                "equipo": p.team,
+                "posicion": p.position_group,
+                "similitud": round(p.similarity, 3),
+                "minutos": p.minutes_played,
+                "partidos": p.matches_played,
+            }
+            for p in similar
+        ],
+    }
+
+    safe_name = player_name.replace(" ", "_").lower()
+    filename = f"similares_{safe_name}_s{season}_c{competition}.json"
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUTPUT_DIR / filename
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(_convertir_decimales(data), f, ensure_ascii=False, indent=2)
+
+    return str(path)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Exporta capas de datos para infografías")
     sub = parser.add_subparsers(dest="comando", required=True)
@@ -98,6 +133,13 @@ def main():
     p_tabla.add_argument("--temporada", "-s", type=int, default=2026)
     p_tabla.add_argument("--competicion", "-c", type=int, default=1)
 
+    # Similares
+    p_sim = sub.add_parser("similares", help="Exporta jugadores similares (ML)")
+    p_sim.add_argument("--nombre", "-n", required=True, help="Nombre del jugador objetivo")
+    p_sim.add_argument("--temporada", "-s", type=int, default=2026)
+    p_sim.add_argument("--competicion", "-c", type=int, default=1)
+    p_sim.add_argument("--top", "-t", type=int, default=5, help="Cantidad de similares")
+
     args = parser.parse_args()
 
     if args.comando == "jugador":
@@ -111,6 +153,10 @@ def main():
     elif args.comando == "tabla":
         path = exportar_tabla(args.temporada, args.competicion)
         print(f"Tabla de líderes exportada: {path}")
+
+    elif args.comando == "similares":
+        path = exportar_similares(args.nombre, args.temporada, args.competicion, args.top)
+        print(f"Jugadores similares exportados: {path}")
 
 
 if __name__ == "__main__":

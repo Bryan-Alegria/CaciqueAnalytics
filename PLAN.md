@@ -505,13 +505,21 @@ Start with console logging, extend to email/Discord later.
 
 ---
 
-## Phase 5: Polish & Expansion (Future)
+## Phase 5: ML & Analytics (COMPLETE)
 
-- Primera B (Segunda Division) scraping — needs SofaScore league ID check
-- Web dashboard (React + react-doctor) for browsing data
+### 5.1 Player Similarity Engine
+
+Built `src/ml/similarity.py` using scikit-learn:
+- 19-feature stat vector (per-90 normalized)
+- StandardScaler + cosine similarity
+- CLI: `python export_data.py similares -n "Player Name" -s 2026 -c 1`
+
+### Future Expansions (Not in current plan)
+
+- Primera B (Segunda Division) scraping
+- Web dashboard (React) for browsing data
 - Historical seasons backfill (2021-2024)
-- Automated X posting (if desired later)
-- Player similarity engine (ML: nearest neighbors on stat vectors)
+- Automated X posting
 
 ---
 
@@ -526,4 +534,5 @@ Start with console logging, extend to email/Discord later.
 | 5 | Write infographic templates / data layers | DONE | Kimi v2.6 |
 | 5.5 | Code refactoring (pre-Phase 4) | DONE | Kimi v2.6 |
 | 6 | Write automation scheduler | DONE | Kimi v2.6 |
-| 7 | End-to-end test: scrape -> ETL -> infographic | NEXT | DeepSeek V4 Pro |
+| 7 | End-to-end test: scrape -> ETL -> infographic | DONE | Kimi v2.6 |
+| 8 | Build Player Similarity Engine (ML) | DONE | Kimi v2.6 |

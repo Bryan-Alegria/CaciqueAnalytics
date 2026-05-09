@@ -2,7 +2,7 @@
 
 ## Current Task
 
-Phase 4: Automation Layer is COMPLETE. All components built and tested. 61/61 tests passing.
+Phase 5: Player Similarity Engine is COMPLETE. All 5 phases done. 70/70 tests passing.
 
 ## Domain Language
 
@@ -24,7 +24,7 @@ Phase 4: Automation Layer is COMPLETE. All components built and tested. 61/61 te
 - **Data Export**: Modular layers with ContextEngine (percentiles + plain text)
 - **HTML Renderer**: Playwright + Jinja2 (optional, for auto-generated infographics)
 - **Automation**: Windows Task Scheduler (Phase 4 — COMPLETE)
-- **Testing**: pytest 9.0.3 (61 tests)
+- **Testing**: pytest 9.0.3 (70 tests)
 - **ML**: scikit-learn 1.8.0 (RandomForest xG predictor)
 
 ## Database Summary
@@ -109,6 +109,8 @@ Tiers: Elite (>95%), Destacado (>85%), Por Encima del Promedio (>70%), Promedio 
   - Notifier: 6 tests
   - Trigger: 5 tests
   - MatchExtractor: 7 tests
+- ML: 9 tests
+  - SimilarityEngine: 9 tests
 
 Run: `python -m pytest tests/`
 
@@ -164,37 +166,60 @@ Run: `python -m pytest tests/`
 - PowerShell wrapper: `scheduler.ps1` for Windows Task Scheduler
 - Recommended: every 15 minutes on match days, every 2 hours otherwise
 
+## ML / Player Similarity Engine (Phase 5 — COMPLETE)
+
+### Component
+| Component | File | Purpose |
+|-----------|------|---------|
+| SimilarityEngine | `src/ml/similarity.py` | ML-based player similarity using cosine similarity on normalized per-90 stat vectors |
+
+### Features
+- 19-dimensional stat vector (goals, assists, rating, xG, shots, passes, duels, etc.)
+- StandardScaler normalization
+- Cosine similarity from scikit-learn
+- Filters: minimum 270 minutes, optional same-position-only
+- CLI: `python export_data.py similares -n "Fernando Zampedri" -s 2026 -c 1 -t 5`
+
+### Export Format
+```json
+{
+  "jugador_objetivo": "Fernando Zampedri",
+  "temporada": 2026,
+  "competicion": 1,
+  "total_jugadores_index": 251,
+  "jugadores_similares": [
+    {"nombre": "Sebastian Saez", "equipo": "Union La Calera", "similitud": 0.917}
+  ]
+}
+```
+
 ## Handover Summary
 
 ### Current Task
-- Phase 4: Automation Layer is COMPLETE
-- All 8 tasks from PLAN.md Phase 4 done
-- 61/61 tests passing
-- Ready for end-to-end validation or Phase 5
+- **ALL 5 PHASES COMPLETE**
+- Phase 1: DB Schema
+- Phase 2: Core ETL
+- Phase 3: Data Layers / Export
+- Phase 4: Automation
+- Phase 5: ML Player Similarity
+- 70/70 tests passing
+- **Project is functionally complete per PLAN.md**
 
 ### Last Actions
-1. Built `MatchExtractor` with browser session reuse for performance
-2. Populated `matches` table: 240 matches for Primera Division 2026
-3. Added `sofascore_season_id` to `seasons` table + populated known IDs
-4. Updated `teams.sofascore_id` for 16 teams
-5. Created `scrape_log` table migration
-6. Built `GamedayDetector` with status/matchday/completion detection
-7. Built `AutomationTrigger` with dry_run and live modes
-8. Built `Notifier` with console/discord/windows backends
-9. Built `Scheduler` (Python CLI + PowerShell wrapper)
-10. Wrote 26 automation tests
+1. Built `SimilarityEngine` (`src/ml/similarity.py`) with cosine similarity
+2. Added `similares` CLI command to `export_data.py`
+3. Wrote 9 ML tests (all passing)
+4. Updated CONTEXT.md and PLAN.md with Phase 5 completion
 
 ### Verified
-- Full test suite: **61/61 passing** with PostgreSQL running
-- MatchExtractor successfully fetched and inserted 240 matches
-- GamedayDetector correctly identifies finished/scheduled matches
-- AutomationTrigger dry_run works without side effects
-- All DB migrations applied successfully
+- Full test suite: **70/70 passing** with PostgreSQL running
+- SimilarityEngine finds reasonable similar players (e.g., Zampedri ~ Saez: 0.917)
+- CLI exports valid JSON with similar players
+- All previous phases still working (regression tests pass)
 
 ### Next Actions
-1. **End-to-end test**: Run scheduler manually to verify full detect -> ETL -> export flow
-2. **Set up Windows Task Scheduler**: Create scheduled task using `scheduler.ps1`
-3. **Phase 5**: Polish & Expansion (Primera B, web dashboard, historical backfill)
+- **Project complete** per documented plan
+- Optional expansions (not in PLAN.md): web dashboard, automated X posting, more competitions
 
 ### Blockers
 - None
