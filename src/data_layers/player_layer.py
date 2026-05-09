@@ -3,20 +3,12 @@
 from src.data_layers.base import BaseDataLayer
 from src.data_layers.colors import get_team_colors
 from src.data_layers.context_engine import ContextEngine
+from src.data_layers import stat_registry
+from src.data_layers import queries
 
 
 class PlayerDataLayer(BaseDataLayer):
     """Fetches and structures all data needed for a single-player infographic."""
-
-    # Columns to expose as 'key stats' for infographics
-    KEY_STAT_COLUMNS = [
-        "goals", "assists", "rating", "expected_goals",
-        "shots_total", "shots_on_target", "shot_conversion_pct",
-        "key_passes_p90", "pass_accuracy_pct",
-        "tackles_p90", "interceptions_p90",
-        "duels_aerial_pct", "dribbles_successful_p90",
-        "big_chances", "xa", "progressive_carries_p90",
-    ]
 
     def __init__(self, player_name: str, season_year: int, competition_id: int):
         super().__init__()
@@ -28,30 +20,14 @@ class PlayerDataLayer(BaseDataLayer):
     def _fetch_identity(self) -> dict:
         """Player identity: name, team, position, colors."""
         self.execute(
-            """
-            SELECT
-                p.id AS player_id,
-                p.full_name,
-                pos.name_es AS position,
-                t.id AS team_id,
-                t.name AS team_name,
-                s.year,
-                c.name AS competition_name
-            FROM player_season_stats pss
-            JOIN players p ON p.id = pss.player_id
-            LEFT JOIN positions pos ON pos.id = p.position_id
-            JOIN teams t ON t.id = pss.team_id
-            JOIN seasons s ON s.id = pss.season_id
-            JOIN competitions c ON c.id = s.competition_id
-            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
-            ORDER BY pss.minutes_played DESC
-            LIMIT 1
-            """,
+            queries.player_identity_base(),
             (self.player_name, self.season_year, self.competition_id),
         )
         row = self.fetchone()
         if not row:
-            raise ValueError(f"Player '{self.player_name}' not found for {self.season_year} competition {self.competition_id}")
+            raise ValueError(
+                f"Player '{self.player_name}' not found for {self.season_year} competition {self.competition_id}"
+            )
 
         keys = [
             "player_id", "full_name", "position", "team_id", "team_name",
@@ -65,48 +41,23 @@ class PlayerDataLayer(BaseDataLayer):
 
     def _fetch_basic_stats(self) -> dict:
         """Basic counting stats everyone understands."""
+        cols = ["matches_played", "minutes_played", "goals", "assists", "yellow_cards", "red_cards"]
         self.execute(
-            """
-            SELECT
-                matches_played,
-                minutes_played,
-                goals,
-                assists,
-                yellow_cards,
-                red_cards
-            FROM player_season_stats pss
-            JOIN players p ON p.id = pss.player_id
-            JOIN seasons s ON s.id = pss.season_id
-            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
-            ORDER BY pss.minutes_played DESC
-            LIMIT 1
-            """,
+            queries.player_season_base(cols),
             (self.player_name, self.season_year, self.competition_id),
         )
         row = self.fetchone()
-        keys = [
-            "matches_played", "minutes_played", "goals", "assists",
-            "yellow_cards", "red_cards",
-        ]
-        return dict(zip(keys, row))
+        return dict(zip(cols, row))
 
     def _fetch_key_stats(self) -> dict:
         """Advanced stats for the main stats grid."""
-        cols = ", ".join(self.KEY_STAT_COLUMNS)
+        cols = stat_registry.key_stats()
         self.execute(
-            f"""
-            SELECT {cols}
-            FROM player_season_stats pss
-            JOIN players p ON p.id = pss.player_id
-            JOIN seasons s ON s.id = pss.season_id
-            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
-            ORDER BY pss.minutes_played DESC
-            LIMIT 1
-            """,
+            queries.player_season_base(cols),
             (self.player_name, self.season_year, self.competition_id),
         )
         row = self.fetchone()
-        return dict(zip(self.KEY_STAT_COLUMNS, row))
+        return dict(zip(cols, row))
 
     def _fetch_derived_stats(self, basic: dict, key: dict) -> dict:
         """Calculate derived stats that are easy to understand."""
@@ -135,6 +86,10 @@ class PlayerDataLayer(BaseDataLayer):
             derived["shots_on_target_pct"] = None
 
         return derived
+
+    def close(self) -> None:
+        self.context_engine.close()
+        super().close()
 
     def build_layers(self) -> dict:
         """Build all modular data layers for this player."""

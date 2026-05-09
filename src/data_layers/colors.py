@@ -1,16 +1,22 @@
 """Team color loader from style config."""
 
 import json
+from functools import lru_cache
 from pathlib import Path
 
 _CONFIG_PATH = Path(__file__).resolve().parents[1] / "infographics" / "style_config.json"
 
 
+@lru_cache(maxsize=1)
+def _load_config() -> dict:
+    """Load and cache the style config from disk."""
+    with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def get_team_colors(team_name: str) -> dict[str, str]:
     """Get primary/secondary colors for a team name."""
-    with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
-        config = json.load(f)
-
+    config = _load_config()
     colors = config.get("team_colors", {})
 
     # Exact match

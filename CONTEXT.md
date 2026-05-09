@@ -2,7 +2,17 @@
 
 ## Current Task
 
-Phase 3 (Infographic Data Layers) is COMPLETE. All data is now exportable as modular JSON layers for user-designed infographics. Phase 4 (Automation Layer) starts tomorrow, preceded by a code refactoring pass.
+Code Refactoring (pre-Phase 4) is COMPLETE. All 5 candidates implemented. Phase 4 (Automation Layer) is next.
+
+## Refactoring Status
+
+| Candidate | Status | Files |
+|-----------|--------|-------|
+| 1. Stat Registry | COMPLETE | `src/data_layers/stat_registry.py` |
+| 2. Plain Text Lookup | COMPLETE | `src/data_layers/context_engine.py` |
+| 3. Query Seam | COMPLETE | `src/data_layers/queries.py` |
+| 4. Colors Cache | COMPLETE | `src/data_layers/colors.py` |
+| 5. Decouple ContextEngine | COMPLETE | `src/data_layers/providers.py`, `context_engine.py` |
 
 ## Domain Language
 
@@ -119,16 +129,17 @@ Run: `python -m pytest tests/`
 - All 21 tests passing
 - Committed and pushed: `8042ec0` (14 files, 1,816 insertions)
 
-### Next Actions (Tomorrow — 2026-05-10)
-1. **Code Refactoring**
-   - Audit codebase for duplicate code across modules
-   - Unify database query patterns (single connection helper)
-   - Consolidate stat column lists across layers
-   - Extract shared formatting logic
-   - Add type hints where missing
-   - Review and simplify ContextEngine._plain_text() logic
+### Last Actions (Session 2026-05-10 — Refactoring)
+- **Candidate 1 (Stat Registry)**: Created `src/data_layers/stat_registry.py` with `StatDefinition` dataclass. All stat metadata centralized in one registry.
+- **Candidate 2 (Plain Text Lookup)**: Refactored `context_engine.py` — removed 30-line `if/elif` chain. Replaced with `stat_registry.plain_text()` using rule tuples.
+- **Candidate 3 (Query Seam)**: Created `src/data_layers/queries.py` with `player_season_base()` and `player_identity_base()`. Eliminated 5 duplicate JOIN blocks.
+- **Candidate 4 (Colors Cache)**: Added `@lru_cache(maxsize=1)` to `colors.py`. Config loaded once, not per call.
+- **Candidate 5 (Decouple ContextEngine)**: Created `src/data_layers/providers.py` with `LeagueStatsProvider` protocol and `DbLeagueStatsProvider`. ContextEngine no longer inherits BaseDataLayer — receives injected provider. Added `close()` delegation in layers.
+- **Repo Cleanup**: Removed 10 unused files (5 root test files + 5 seed scripts). Cleaned `__pycache__`, `.pytest_cache`, and Python 3.14 cache files.
+- **Tests**: Added `tests/test_data_layers/test_regression.py` with 14 tests. Full suite: 31 passing, 4 pre-existing failures (PostgreSQL off).
 
-2. **Phase 4: Automation Layer**
+### Next Actions
+1. **Phase 4: Automation Layer**
    - Extend ETL to populate `matches` table (currently empty)
    - Build `GamedayDetector`: monitor matches for status changes (scheduled -> live -> finished)
    - Build `Scheduler`: Windows Task Scheduler integration
@@ -136,20 +147,20 @@ Run: `python -m pytest tests/`
    - Build `Notifier`: alert when data is ready (console/email/TBD)
    - Add `scrape_log` table for audit trail
 
-3. **Tests**
-   - Write pytest tests for data_layers package
+2. **Tests**
    - Write tests for automation components
    - Verify full pipeline: scrape -> ETL -> data export
 
 ### Critical State
-- **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
+- **DB**: PostgreSQL 18 STOPPED, cacique_analytics, .env has credentials
 - **Python**: 3.12
 - **Model**: Currently Kimi v2.6 (implementation phase)
-- **Branch**: main (14 commits ahead of origin/main -> now pushed)
+- **Branch**: main, uncommitted refactoring changes ready for commit
 - **.env**: Created with DB credentials, NOT committed
-- **Dependencies**: psycopg2-binary, pytest, scikit-learn, jinja2, playwright installed
-- **Uncommitted changes**: None (all pushed)
+- **Dependencies**: psycopg2-binary, pytest, scikit-learn, jinja2, playwright, jupyter installed
+- **Uncommitted changes**: See git status — new files, modified files, deleted unused files
 - **Matches table**: EMPTY — needs fixture extraction before automation works
+- **Test suite**: 31 passing, 4 pre-existing failures (PostgreSQL off)
 
 ## Files
 
@@ -163,8 +174,11 @@ Run: `python -m pytest tests/`
 - `src/scraper/` — SofaScore scraper and position classifier
 - `src/etl/` — Extract, transform, load, orchestrator
 - `src/infographics/` — HTML renderer + templates + style_config.json
-- `src/data_layers/` — Modular data export system
-- `tests/` — pytest suite (21 tests)
+- `src/data_layers/` — Modular data export system (9 files)
+  - `stat_registry.py` — Central stat metadata registry
+  - `queries.py` — Reusable SQL query builders
+  - `providers.py` — LeagueStatsProvider interface + DB implementation
+- `tests/` — pytest suite (35 tests: 21 original + 14 new regression)
 - `calculate_xg.py` — xG prediction script (one-off)
 - `verify_db.py` — Database verification script
 - `Infographics/` — Output directory (gitignored)

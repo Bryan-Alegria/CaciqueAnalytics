@@ -3,20 +3,12 @@
 from src.data_layers.base import BaseDataLayer
 from src.data_layers.colors import get_team_colors
 from src.data_layers.context_engine import ContextEngine
-from src.data_layers.player_layer import PlayerDataLayer
+from src.data_layers import stat_registry
+from src.data_layers import queries
 
 
 class ComparisonDataLayer(BaseDataLayer):
     """Generates side-by-side comparison data for two players."""
-
-    COMPARISON_STATS = [
-        "goals", "assists", "rating", "expected_goals",
-        "shots_total", "shots_on_target", "shot_conversion_pct",
-        "key_passes_p90", "pass_accuracy_pct",
-        "tackles_p90", "interceptions_p90",
-        "duels_aerial_pct", "dribbles_successful_p90",
-        "big_chances", "xa",
-    ]
 
     def __init__(self, player1_name: str, player2_name: str, season_year: int, competition_id: int):
         super().__init__()
@@ -28,43 +20,24 @@ class ComparisonDataLayer(BaseDataLayer):
 
     def _fetch_player_stats(self, player_name: str) -> dict:
         """Fetch raw stats for a player."""
-        cols = ", ".join(self.COMPARISON_STATS)
+        cols = stat_registry.comparison_stats() + ["matches_played", "minutes_played"]
         self.execute(
-            f"""
-            SELECT {cols}, matches_played, minutes_played
-            FROM player_season_stats pss
-            JOIN players p ON p.id = pss.player_id
-            JOIN seasons s ON s.id = pss.season_id
-            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
-            ORDER BY pss.minutes_played DESC
-            LIMIT 1
-            """,
+            queries.player_season_base(cols),
             (player_name, self.season_year, self.competition_id),
         )
         row = self.fetchone()
         if not row:
             raise ValueError(f"Player '{player_name}' not found")
-
-        all_cols = self.COMPARISON_STATS + ["matches_played", "minutes_played"]
-        return dict(zip(all_cols, row))
+        return dict(zip(cols, row))
 
     def _fetch_identity(self, player_name: str) -> dict:
         """Fetch identity info."""
         self.execute(
-            """
-            SELECT p.full_name, pos.name_es AS position, t.name
-            FROM player_season_stats pss
-            JOIN players p ON p.id = pss.player_id
-            LEFT JOIN positions pos ON pos.id = p.position_id
-            JOIN teams t ON t.id = pss.team_id
-            JOIN seasons s ON s.id = pss.season_id
-            WHERE p.full_name = %s AND s.year = %s AND s.competition_id = %s
-            LIMIT 1
-            """,
+            queries.player_identity_base(),
             (player_name, self.season_year, self.competition_id),
         )
         row = self.fetchone()
-        keys = ["name", "position", "team"]
+        keys = ["player_id", "name", "position", "team_id", "team", "year", "competition_name"]
         result = dict(zip(keys, row))
         colors = get_team_colors(result["team"])
         result["primary_color"] = colors["primary"]
@@ -95,8 +68,12 @@ class ComparisonDataLayer(BaseDataLayer):
             "player2_display": fmt.format(p2_val) if p2_val is not None else "N/A",
             "winner": winner,
             "difference": diff,
-            "is_higher_better": stat_key in ContextEngine.HIGHER_IS_BETTER,
+            "is_higher_better": stat_registry.higher_is_better(stat_key),
         }
+
+    def close(self) -> None:
+        self.context_engine.close()
+        super().close()
 
     def build_layers(self) -> dict:
         """Build H2H comparison layers."""
@@ -106,29 +83,12 @@ class ComparisonDataLayer(BaseDataLayer):
         p2_id = self._fetch_identity(self.player2_name)
 
         categories = []
-        category_map = {
-            "goals": ("Goles", "{}"),
-            "assists": ("Asistencias", "{}"),
-            "rating": ("Rating", "{:.2f}"),
-            "expected_goals": ("xG", "{:.2f}"),
-            "shots_total": ("Tiros", "{}"),
-            "shots_on_target": ("Tiros al Arco", "{}"),
-            "shot_conversion_pct": ("Efectividad (%)", "{:.1f}%"),
-            "key_passes_p90": ("Pases Clave /90", "{:.2f}"),
-            "pass_accuracy_pct": ("Precisión Pases (%)", "{:.1f}%"),
-            "tackles_p90": ("Entradas /90", "{:.2f}"),
-            "interceptions_p90": ("Intercepciones /90", "{:.2f}"),
-            "duels_aerial_pct": ("Duelos Aéreos (%)", "{:.1f}%"),
-            "dribbles_successful_p90": ("Regates /90", "{:.2f}"),
-            "big_chances": ("Ocasiones Claras", "{}"),
-            "xa": ("xA", "{:.2f}"),
-        }
-
-        for stat_key, (label, fmt) in category_map.items():
+        for stat_def in stat_registry.comparison_stats():
+            meta = stat_registry.get(stat_def)
             categories.append(self._build_category(
-                label, stat_key,
-                p1_stats.get(stat_key), p2_stats.get(stat_key),
-                fmt
+                meta.label, meta.column,
+                p1_stats.get(meta.column), p2_stats.get(meta.column),
+                meta.fmt
             ))
 
         # Count wins

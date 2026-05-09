@@ -1,6 +1,7 @@
 """Leaderboard / top lists data layer."""
 
 from src.data_layers.base import BaseDataLayer
+from src.data_layers import stat_registry
 
 
 class LeaderboardDataLayer(BaseDataLayer):
@@ -12,7 +13,7 @@ class LeaderboardDataLayer(BaseDataLayer):
         self.competition_id = competition_id
         self.min_minutes = min_minutes
 
-    def _fetch_top(self, column: str, label: str, limit: int = 5, fmt: str = "{}") -> list[dict]:
+    def _fetch_top(self, column: str, limit: int = 5) -> list[dict]:
         """Fetch top N players for a given stat."""
         self.execute(
             f"""
@@ -35,6 +36,7 @@ class LeaderboardDataLayer(BaseDataLayer):
             (self.season_year, self.competition_id, self.min_minutes, limit),
         )
 
+        meta = stat_registry.get(column)
         results = []
         for rank, row in enumerate(self.fetchall(), start=1):
             name, team, val, matches, minutes = row
@@ -43,7 +45,7 @@ class LeaderboardDataLayer(BaseDataLayer):
                 "player_name": name,
                 "team": team,
                 "value": val,
-                "display_value": fmt.format(val),
+                "display_value": meta.leaderboard_format.format(val),
                 "matches": matches,
                 "minutes": minutes,
             })
@@ -51,17 +53,14 @@ class LeaderboardDataLayer(BaseDataLayer):
 
     def build_layers(self) -> dict:
         """Build all leaderboard layers."""
-        return {
+        layers = {
             "layer_identity": {
                 "season": self.season_year,
                 "competition_id": self.competition_id,
                 "min_minutes": self.min_minutes,
             },
-            "layer_top_scorers": self._fetch_top("goals", "Goles", 5, "{}"),
-            "layer_top_assists": self._fetch_top("assists", "Asistencias", 5, "{}"),
-            "layer_top_rating": self._fetch_top("rating", "Calificación", 5, "{:.2f}"),
-            "layer_top_xg": self._fetch_top("expected_goals", "xG", 5, "{:.2f}"),
-            "layer_top_shots": self._fetch_top("shots_total", "Tiros", 5, "{}"),
-            "layer_top_key_passes": self._fetch_top("key_passes_p90", "Pases Clave /90", 5, "{:.2f}"),
-            "layer_top_tackles": self._fetch_top("tackles_p90", "Entradas /90", 5, "{:.2f}"),
         }
+        for stat_def in stat_registry.leaderboard_stats():
+            layer_name = f"layer_top_{stat_def.column}"
+            layers[layer_name] = self._fetch_top(stat_def.column, 5)
+        return layers
