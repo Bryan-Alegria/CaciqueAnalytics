@@ -1,0 +1,42 @@
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1080,
+    "dpi": 150
+  },
+  "colors": {
+    "primary": "#1a1a2e",
+    "accent": "#e94560",
+    "background": "#16213e",
+    "surface": "#0f3460",
+    "text_light": "#ffffff",
+    "text_dark": "#0f3460",
+    "text_muted": "#a0a0a0",
+    "grid": "#2a2a4a",
+    "success": "#4caf50",
+    "warning": "#ff9800"
+  },
+  "fonts": {
+    "title": {"family": "sans-serif", "weight": "bold", "size": 28},
+    "subtitle": {"family": "sans-serif", "weight": "bold", "size": 18},
+    "body": {"family": "sans-serif", "weight": "normal", "size": 12},
+    "stat": {"family": "monospace", "weight": "bold", "size": 14},
+    "label": {"family": "sans-serif", "weight": "normal", "size": 10}
+  },
+  "team_colors": {
+    "Colo-Colo": {"primary": "#000000", "secondary": "#FFFFFF"},
+    "Universidad de Chile": {"primary": "#004B87", "secondary": "#E5002B"},
+    "Universidad Catolica": {"primary": "#ffffff", "secondary": "#00529F"},
+    "Universidad de Concepcion": {"primary": "#FFD700", "secondary": "#00529F"},
+    "O'Higgins": {"primary": "#0072CE", "secondary": "#FFFFFF"},
+    "Palestino": {"primary": "#006600", "secondary": "#FFFFFF"},
+    "Huachipato": {"primary": "#000000", "secondary": "#008F39"},
+    "Coquimbo Unido": {"primary": "#FFD700", "secondary": "#000000"},
+    "Everton de Vina del Mar": {"primary": "#0066B3", "secondary": "#FFD700"},
+    "Audax Italiano": {"primary": "#009900", "secondary": "#FFFFFF"},
+    "Union La Calera": {"primary": "#CE1126", "secondary": "#FFFFFF"},
+    "Cobresal": {"primary": "#FF6600", "secondary": "#FFFFFF"},
+    "Deportes Iquique": {"primary": "#FF6600", "secondary": "#000000"},
+    "Union Espanola": {"primary": "#CE1126", "secondary": "#FFD700"}
+  }
+}

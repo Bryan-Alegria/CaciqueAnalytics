@@ -19,3 +19,10 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Generated infographics
+Infographics/player_card_*.png
+Infographics/top_scorers_*.png
+Infographics/league_table_*.png
+Infographics/match_preview_*.png
+Infographics/match_report_*.png
