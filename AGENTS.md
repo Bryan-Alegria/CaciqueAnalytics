@@ -35,13 +35,14 @@ Do not use emojis in any output, commit messages, code comments, or documentatio
 
 ## Project Context
 
-**CaciqueAnalytics** is a data pipeline for Chilean football:
+**CaciqueAnalytics** is a data pipeline for Chilean football analytics:
 
-- **Data source**: LanusStats library (GitHub) — verify if still maintained; research alternatives
-- **Scope**: 2026 Chilean Primera Division (and possibly Primera B / Segunda Division)
-- **Pipeline**: Extract data -> Transform/Clean -> Load to DB -> Generate infographics -> Post to X (Twitter)
-- **Cadence**: Automated updates after each gameday, with fast turnaround for pre/post-match engagement
-- **Existing artifacts**: `Infographics/` folder contains prototype examples
+- **Data source**: LanusStats library (SofaScore wrapper) + direct API calls
+- **Scope**: Primera Division Chile, Copa de la Liga, Copa Libertadores, Copa Sudamericana (2025-2026)
+- **Pipeline**: Extract (SofaScore) -> Transform/Clean -> Load to PostgreSQL -> Generate data layers -> Export JSON -> User designs infographics in Canvas
+- **Cadence**: Automated updates after each gameday (Phase 4 in progress)
+- **Current state**: Data layers complete (player, comparison, leaderboard), HTML renderer built, 21 tests passing
+- **Output**: Structured JSON files in `Infographics/data/` for manual infographic creation
 
 ## Essential Rules
 

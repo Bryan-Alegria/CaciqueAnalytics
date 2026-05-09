@@ -320,107 +320,188 @@ Use `season.year` column in queries to compare year-over-year.
 
 ---
 
-## Phase 3: Infographic Engine
+## Phase 3: Infographic Data Layers (COMPLETE)
 
-### 3.1 Template Architecture
+### 3.1 Architecture
 
-Templates are Python classes inheriting from `BaseTemplate`:
+Instead of generating images automatically, the system exports structured JSON data layers for the user to design infographics manually (Canvas, Figma, Photoshop, etc.).
 
 ```python
-class BaseTemplate:
-    width = 1080
-    height = 1080  # Square for X/Twitter feed
-
-    def query(self, db_session, params) -> DataFrame:
-        """Fetch data from DB"""
-        raise NotImplementedError
-
-    def plot(self, data) -> plt.Figure:
-        """Render matplotlib figure"""
-        raise NotImplementedError
-
-    def generate(self, db_session, params) -> str:
-        """Full pipeline: query -> plot -> save -> return filepath"""
-        ...
-```
-
-### 3.2 Template Types
-
-| Template | Query | Visual |
-|----------|-------|--------|
-| Player Card | `player_season_stats` + `players` + `teams` | Radar chart + stat bars + photo placeholder |
-| Player Comparison | Two player cards side by side, difference highlights | Split card with delta indicators |
-| Match Preview | `team_season_stats` + `matches` (upcoming) | H2H record, form guide, xG comparison |
-| Match Report | `player_match_stats` + `match_team_stats` | xG timeline, shot map, top performers |
-| League Table | `standings` (latest matchday) | Styled table with form strings |
-| Season Trend | `standings` (all matchdays) | Line chart of positions over time |
-| Top Scorers | `player_season_stats` ORDER BY goals DESC | Leaderboard card |
-| Team of the Week | `player_match_stats` where `matchday = N` | Formation graphic with ratings |
-
-### 3.3 Style System
-
-Colors, fonts, logos managed via a `style_config.json`:
-
-```json
+# Player layer
 {
-  "colors": {
-    "primary": "#1a1a2e",
-    "accent": "#e94560",
-    "background": "#16213e",
-    "text_light": "#ffffff",
-    "text_dark": "#0f3460"
-  },
-  "team_colors": {
-    "Colo Colo": {"primary": "#000000", "secondary": "#FFFFFF"},
-    "Universidad de Chile": {"primary": "#004B87", "secondary": "#E5002B"}
-  }
+  "layer_identity": {...},
+  "layer_basic_stats": {...},
+  "layer_key_stats": {...},      # With percentiles + plain text
+  "layer_derived_stats": {...},  # Goals/90, Min/Gol, etc.
+  "layer_summary": {...}
 }
 ```
 
-### 3.4 Output
+### 3.2 Data Layer Types
 
-Images saved to `Infographics/` directory with naming pattern:
-`{type}_{season}_{matchday}_{timestamp}.png`
+| Layer | Source | Output |
+|-------|--------|--------|
+| PlayerDataLayer | `player_season_stats` | Single player with context |
+| ComparisonDataLayer | Two player records | H2H with winner tracking |
+| LeaderboardDataLayer | `player_season_stats` ranked | Top 5 lists per stat |
+
+### 3.3 Context Engine
+
+Every key stat includes:
+- **percentile**: 0-100 vs league
+- **vs_average**: Percentage difference from league mean
+- **plain_text**: Tier description (Elite, Destacado, Promedio, etc.)
+
+### 3.4 Export CLI (Spanish)
+
+```bash
+python export_data.py jugador -n "Fernando Zampedri" -s 2026 -c 1
+python export_data.py comparar --j1 "Fernando Zampedri" --j2 "Daniel Castro" -s 2026 -c 1
+python export_data.py tabla -s 2026 -c 1
+```
+
+### 3.5 Optional HTML Renderer
+
+Playwright + Jinja2 for auto-generated PNGs:
+- `player_card.html` — B/R Football style (dark, red accent, Bebas Neue)
+- Can be extended or ignored based on user preference
+
+### 3.6 Status
+
+- Data layers: COMPLETE (7 files in `src/data_layers/`)
+- Context engine: COMPLETE (percentiles + plain text in Spanish)
+- Export CLI: COMPLETE (3 commands)
+- HTML renderer: COMPLETE (Playwright + Jinja2)
+- Tests: 21 passing
 
 ---
 
-## Phase 4: Automation Layer
+## Phase 4: Automation Layer (IN PROGRESS)
 
-### 4.1 Gameday Detection
+### Pre-requisite: Code Refactoring
 
-Monitor `matches` table for status changes:
+Before building automation, audit and clean the codebase:
 
-```python
-def get_next_gameday(db):
-    return db.query("""
-        SELECT DISTINCT matchday FROM matches
-        WHERE season_id = (SELECT id FROM seasons WHERE is_current = true)
-        AND status = 'scheduled'
-        ORDER BY matchday LIMIT 1
-    """)
-```
+1. **Deduplicate queries**: Unify `SELECT` patterns across `player_layer.py`, `comparison_layer.py`, `leaderboard_layer.py`
+2. **Extract shared constants**: Stat column lists, key stat definitions, format strings
+3. **Simplify ContextEngine**: `_plain_text()` has too many conditionals — refactor with a lookup table
+4. **Add missing type hints**: All public methods should have complete annotations
+5. **Consolidate DB access**: `BaseDataLayer` vs raw `get_connection()` calls — pick one pattern
 
-After each match in a matchday finishes, run ETL for that competition.
+### 4.1 Match Data Population
 
-### 4.2 Trigger Logic
+**Current blocker**: `matches` table is EMPTY. Must extend ETL to populate it.
 
 ```python
-def check_and_run():
-    pending = get_unprocessed_matchdays()
-    for md in pending:
-        run_etl_for_matchday(md.season_id, md.matchday)
-        generate_infographics_for_matchday(md.season_id, md.matchday)
-        notify_user("Data ready for matchday %d" % md.matchday)
+# New: src/etl/matches.py
+class MatchExtractor:
+    def fetch_fixtures(self, season_id, matchday):
+        # Get scheduled matches from SofaScore
+        ...
+    
+    def update_results(self, season_id, matchday):
+        # Update scores and status for finished matches
+        ...
 ```
 
-Run via Windows Task Scheduler every 2 hours on gamedays.
+Add `scrape_log` table for audit trail:
+```sql
+CREATE TABLE scrape_log (
+    id SERIAL PRIMARY KEY,
+    run_started_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    run_finished_at TIMESTAMP WITH TIME ZONE,
+    source VARCHAR(20) NOT NULL,
+    competition_id INTEGER REFERENCES competitions(id),
+    season_id INTEGER REFERENCES seasons(id),
+    records_fetched INTEGER,
+    records_inserted INTEGER,
+    records_updated INTEGER,
+    error_message TEXT,
+    status VARCHAR(20) DEFAULT 'running'
+);
+```
 
-### 4.3 Posting Flow (Manual)
+### 4.2 Gameday Detection
 
-1. Script finishes ETL + generates infographics
-2. Notify: "Matchday X data ready. Check Infographics/"
-3. User reviews, picks images, posts manually to X
-4. User marks infographic as `posted` in `infographics_log`
+```python
+class GamedayDetector:
+    def get_today_matches(self):
+        # Matches scheduled for today
+        ...
+    
+    def check_status_changes(self):
+        # Compare previous vs current status
+        # Detect: scheduled -> live -> finished
+        ...
+    
+    def is_matchday_complete(self, matchday):
+        # All matches in matchday have status = 'finished'
+        ...
+```
+
+### 4.3 Trigger Logic
+
+```python
+class AutomationTrigger:
+    def run(self):
+        # 1. Check for finished matches
+        finished = detector.get_newly_finished()
+        
+        # 2. Run ETL for affected competitions
+        for match in finished:
+            etl.run_for_match(match)
+        
+        # 3. Check if matchday is complete
+        if detector.is_matchday_complete(matchday):
+            # 4. Export fresh data layers
+            export_all_for_matchday(matchday)
+            # 5. Notify
+            notifier.send("Matchday %d data ready" % matchday)
+```
+
+### 4.4 Scheduler
+
+Windows Task Scheduler integration:
+- Run every 15 minutes on match days
+- Run every 2 hours on non-match days (status check)
+- PowerShell script wrapper: `src/automation/scheduler.ps1`
+
+### 4.5 Notifier
+
+```python
+class Notifier:
+    def send(self, message):
+        # Option A: Console log (default)
+        # Option B: Email
+        # Option C: Discord webhook
+        # Option D: Windows notification
+        ...
+```
+
+Start with console logging, extend to email/Discord later.
+
+### 4.6 Posting Flow (Manual)
+
+1. Scheduler detects finished matchday
+2. Trigger runs ETL + exports data layers
+3. Notifier: "Matchday X data ready. Check Infographics/data/"
+4. User designs infographics in Canvas using exported JSON
+5. User posts manually to X
+
+### 4.7 Tomorrow's Execution Order
+
+| Step | Task | Files |
+|------|------|-------|
+| 1 | Refactor: deduplicate queries, unify patterns | `src/data_layers/*.py` |
+| 2 | Refactor: simplify ContextEngine | `src/data_layers/context_engine.py` |
+| 3 | Write `MatchExtractor` + populate matches table | `src/etl/matches.py` |
+| 4 | Build `GamedayDetector` | `src/automation/detector.py` |
+| 5 | Build `AutomationTrigger` | `src/automation/trigger.py` |
+| 6 | Build `Scheduler` (Task Scheduler integration) | `src/automation/scheduler.py`, `scheduler.ps1` |
+| 7 | Build `Notifier` | `src/automation/notifier.py` |
+| 8 | Add `scrape_log` table + migration | `migrations/` |
+| 9 | Write tests for automation components | `tests/test_automation/` |
+| 10 | End-to-end test: detect -> ETL -> export | Full pipeline |
 
 ---
 
