@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Card - {{ player }}</title>
+  <style>
+    {{ css['br-football.css'] }}
+    
+    /* Template-specific overrides */
+    .hero-name-container {
+      position: relative;
+      margin-bottom: var(--space-md);
+    }
+    
+    .player-name-bg {
+      position: absolute;
+      top: -10px;
+      left: -20px;
+      font-family: var(--font-display);
+      font-size: 120px;
+      color: rgba(233, 69, 96, 0.08);
+      line-height: 0.9;
+      letter-spacing: -3px;
+      z-index: -1;
+      white-space: nowrap;
+    }
+    
+    .stat-card.highlight {
+      background: linear-gradient(135deg, var(--ca-card) 0%, rgba(233, 69, 96, 0.1) 100%);
+      border-color: rgba(233, 69, 96, 0.2);
+    }
+    
+    .stat-card.highlight .stat-value {
+      color: var(--ca-accent);
+    }
+    
+    .goals-highlight {
+      grid-column: span 2;
+      background: linear-gradient(135deg, var(--ca-card) 0%, rgba(233, 69, 96, 0.15) 100%);
+      border: 2px solid rgba(233, 69, 96, 0.3);
+    }
+    
+    .goals-highlight .stat-value {
+      font-size: 80px;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .performance-badge {
+      position: absolute;
+      top: var(--space-md);
+      right: var(--space-md);
+      background: var(--gradient-accent);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: 12px;
+      font-family: var(--font-accent);
+      font-weight: 800;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="accent-bar"></div>
+  <div class="bg-gradient"></div>
+  <div class="bg-pattern"></div>
+  <div class="bg-grid"></div>
+  
+  <div class="container">
+    <!-- Header -->
+    <header class="header animate-in">
+      <div class="logo">
+        <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" stroke="#e94560" stroke-width="3"/>
+          <path d="M30 35 Q40 25 50 35 Q60 25 70 35" stroke="#e94560" stroke-width="3" fill="none"/>
+          <path d="M35 50 L50 35 L65 50 L50 65 Z" fill="#e94560"/>
+          <text x="50" y="85" text-anchor="middle" fill="white" font-family="Montserrat" font-weight="700" font-size="14">CA</text>
+        </svg>
+      </div>
+      <div class="season-badge">{{ year }}</div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content animate-in animate-delay-1">
+        <div class="hero-name-container">
+          <div class="player-name-bg">{{ player.split()[-1] }}</div>
+          <div class="player-nickname">EL TORO</div>
+          <h1 class="player-name glow-text">{{ player.upper() }}</h1>
+        </div>
+        <div class="player-team">
+          <span>{{ team }}</span>
+          <span style="color: var(--ca-accent);">|</span>
+          <span style="color: var(--text-secondary);">{{ competition }}</span>
+        </div>
+      </div>
+      
+      <div class="hero-image animate-in animate-delay-2">
+        <div class="hero-glow"></div>
+        <!-- Player image placeholder - would be replaced with actual photo -->
+        <div style="width:100%;height:100%;background:linear-gradient(180deg, rgba(233,69,96,0.2) 0%, transparent 100%);border-radius:20px;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:var(--font-display);font-size:120px;color:rgba(255,255,255,0.1);">{{ player[0] }}</span>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Big Highlight Stat -->
+    <div class="big-stat animate-in animate-delay-3">
+      <div class="big-stat-number">{{ goals }}</div>
+      <div>
+        <div class="big-stat-label">GOLES</div>
+        <div class="big-stat-sublabel">Máximo Goleador</div>
+      </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <section class="stats-section animate-in animate-delay-4">
+      <div class="section-header">
+        <span class="caption" style="color: var(--ca-accent);">Estadísticas Clave</span>
+        <div class="section-line"></div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card highlight">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="stat-label">Rating</div>
+          <div class="stat-value">{{ "%.2f"|format(rating) if rating else "N/A" }}</div>
+        </div>
+        
+        <div class="stat-card highlight">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+            </svg>
+          </div>
+          <div class="stat-label">xG</div>
+          <div class="stat-value">{{ "%.2f"|format(xg) if xg else "N/A" }}</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="stat-label">Asistencias</div>
+          <div class="stat-value">{{ assists if assists is not none else 0 }}</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v8m-4-4h8"/>
+            </svg>
+          </div>
+          <div class="stat-label">Tiros</div>
+          <div class="stat-value">{{ shots if shots is not none else 0 }}</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 22h20L12 2z"/>
+              <circle cx="12" cy="16" r="2"/>
+            </svg>
+          </div>
+          <div class="stat-label">Tiros al Arco</div>
+          <div class="stat-value">{{ shots_on_target if shots_on_target is not none else 0 }}</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div class="stat-label">Key Passes/90</div>
+          <div class="stat-value">{{ "%.2f"|format(key_passes) if key_passes else "N/A" }}</div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Additional Stats Row -->
+    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: var(--space-md);">
+      <div class="stat-card">
+        <div class="stat-label">Minutos</div>
+        <div class="stat-value" style="font-size: 36px;">{{ minutes if minutes is not none else 0 }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Partidos</div>
+        <div class="stat-value" style="font-size: 36px;">{{ matches if matches is not none else 0 }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Precisión Pases</div>
+        <div class="stat-value" style="font-size: 36px;">{{ "%.1f"|format(pass_accuracy) + "%" if pass_accuracy else "N/A" }}</div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-brand">
+        <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="45" stroke="#e94560" stroke-width="3"/>
+          <path d="M30 35 Q40 25 50 35 Q60 25 70 35" stroke="#e94560" stroke-width="3" fill="none"/>
+          <path d="M35 50 L50 35 L65 50 L50 65 Z" fill="#e94560"/>
+        </svg>
+        CaciqueAnalytics
+      </div>
+      <div class="footer-data">Data via SofaScore</div>
+    </footer>
+  </div>
+</body>
+</html>
