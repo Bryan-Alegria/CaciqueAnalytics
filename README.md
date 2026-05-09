@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Infographics/Logo%20con%20Tipograf%C3%ADa%20HD%20Arreglado.png" alt="CaciqueAnalytics Logo" width="350"/>
+  <img src="Infographics/logo.png" alt="CaciqueAnalytics Logo" width="350"/>
 </p>
 
 <h1 align="center">CaciqueAnalytics</h1>
