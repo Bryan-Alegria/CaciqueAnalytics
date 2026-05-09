@@ -2,8 +2,9 @@
 
 ## Current Task
 
-Implementing Phase 1: DB Schema Optimization from PLAN.md.
-All migration SQL executed and verified against PostgreSQL.
+Implementing Phase 2: Core ETL Pipeline from PLAN.md.
+Database seeded with teams, players, season, and player_season_stats for 2026.
+Next: seed nationalities, add Copa Libertadores/Sudamericana data, then move to infographics.
 
 ## Domain Language
 
@@ -26,14 +27,67 @@ All migration SQL executed and verified against PostgreSQL.
 
 ## Database Summary
 
-16 tables in public schema. 4 competitions seeded (Primera Chile=1, Copa Chile=2,
-Libertadores=3, Sudamericana=4). 19 positions seeded. All data tables empty,
-ready for 2026 population.
+16 tables. 4 competitions seeded (Primera Chile=1, Copa Chile=2, Libertadores=3,
+Sudamericana=4). 19 positions seeded. Schema migration applied (all 53 SofaScore
+fields mapped). New tables: match_team_stats, standings, scrape_log, infographics_log.
+
+## Data Status (2026 Primera Chile)
+
+| Table | Count |
+|-------|------:|
+| teams | 16 |
+| players | 391 |
+| seasons | 1 (2026, id=1, is_current=true) |
+| player_team_seasons | 391 |
+| player_season_stats | **392** |
+
+Top scorer: 11 goals (player_id=309). Data quality verified: zero missing values.
+
+## Handover Summary
+
+### Last Actions
+- Added unique constraints to teams.name and players.full_name (for idempotent upserts)
+- Created seed_teams_players.py: seeded 16 teams, 391 players, 1 season, 391 links
+- Created populate_stats.py: loaded 392 player_season_stats records via ETL
+- Added .env file (NOT committed, .gitignore protects it)
+- Added .gitignore for Python artifacts
+
+### Next Actions
+1. Seed nationalities lookup table (currently empty)
+2. Scrape and load Copa Libertadores 2026 data (Chilean teams only)
+3. Scrape and load Copa Sudamericana 2026 data (Chilean teams only)
+4. Scrape 2025 season for comparison data
+5. Move to Phase 3: Infographic Engine (player cards, match reports, league table)
+6. Write tests for scraper and ETL modules
+
+### Critical State
+- **DB**: PostgreSQL 18 running, cacique_analytics, .env has credentials
+- **Python**: 3.12 at C:\Users\PC\AppData\Local\Programs\Python\Python312\python.exe
+- **Model**: Currently Kimi v2.6 (implementation phase)
+- **Branch**: main (clean, pushed to origin)
+- **Open files**: src/scraper/sofascore_client.py, src/etl/*.py, seed_teams_players.py, populate_stats.py
+- **.env**: Created with DB credentials, NOT committed (protected by .gitignore)
+- **Dependencies**: psycopg2-binary installed
+- **No uncommitted changes**
 
 ## Files
 
 - `PLAN.md` — Full implementation plan (5 phases)
 - `AGENTS.md` — Agent instructions and conventions
-- `migrations/001_schema_optimization.sql` — Phase 1 DDL (already applied)
+- `CONTEXT.md` — This file (domain language and handover state)
+- `migrations/001_schema_optimization.sql` — Phase 1 DDL (applied)
 - `opencode.json` — OpenCode plugin config (superpowers)
+- `requirements.txt` — Project dependencies
+- `src/config.py` — Config loader from .env
+- `src/db/session.py` — PostgreSQL connection
+- `src/scraper/sofascore_client.py` — SofaScore scraper
+- `src/scraper/position_classifier.py` — Position mapping
+- `src/etl/extract.py` — Data extraction
+- `src/etl/transform.py` — Data transformation
+- `src/etl/load.py` — DB upsert loading
+- `src/etl/orchestrator.py` — ETL pipeline runner
+- `seed_teams_players.py` — One-off seed script
+- `populate_stats.py` — One-off stats population script
+- `test_scraper.py` — Scraper verification script
+- `test_data_quality.py` — Data quality analysis script
 - `Infographics/` — Output directory for generated images
